@@ -1,7 +1,7 @@
 <?php
 namespace App\Controller;
 
-use App\Entity\Proyecto;
+use App\Entity\Actividad;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
@@ -19,54 +19,45 @@ use Swagger\Annotations as SWG;
 /**
  * Class ApiController
  *
- * @Route("/api/proyectos")
+ * @Route("/api/actividades")
  */
-class ProyectoController extends FOSRestController
+class ActividadController extends FOSRestController
 {
 
     /**
-     * @Rest\Get("", name="proyectos")
+     * @Rest\Get("", name="actividades")
      *
      * @SWG\Response(response=201,description="User was successfully registered")
      * @SWG\Response(response=500,description="User was not successfully registered")
-     * @SWG\Tag(name="Proyecto")
+     * @SWG\Tag(name="Actividad")
      */
-     public function proyectos()
+     public function Actvidades()
      {
        $serializer = $this->get('jms_serializer');
        $em = $this->getDoctrine()->getManager();
-       $proyectos = $em->getRepository("App:Proyecto")->findAll();
+       $proyectos = $em->getRepository("App:Actividad")->findAll();
        return new Response($serializer->serialize($proyectos, "json"));
      }
 
     /**
-     * @Rest\Post("/alta", name="nuevo")
+     * @Rest\Post("/alta", name="alta_actividades")
      * @Rest\RequestParam(name="nombre",nullable=false)
-     * @Rest\RequestParam(name="fecha_fin",nullable=true)
-     * @Rest\RequestParam(name="protocolos",nullable=false)
      * @SWG\Response(response=201,description="User was successfully registered")
      * @SWG\Response(response=500,description="User was not successfully registered")
      * @SWG\Parameter(name="_protocolo",in="body",type="string",description="protocolo",schema={})
-     * @SWG\Tag(name="Proyecto")
+     * @SWG\Tag(name="Activos")
      */
-    public function nuevoProyecto(ParamFetcher $paramFetcher) {
+    public function nuevaActividad(ParamFetcher $paramFetcher) {
       try {
           $serializer = $this->get('jms_serializer');
           $em = $this->getDoctrine()->getManager();
           $responsable = $this->getUser();
           $nombre = $paramFetcher->get('nombre');
-          $protocolos = $paramFetcher->get('protocolos');
-          $fechaFin = !empty($paramFetcher->get('fecha_fin')) ? new \DateTime($paramFetcher->get('fecha_fin')) : NULL;
-          $proyecto = new Proyecto($nombre,$responsable,$fechaFin);
-          $em->persist($proyecto);
-          /** seteo los protocolos para con el proyecto creado **/
-          foreach ($protocolos as $value) {
-            $protocolo = $em->getRepository("App:Protocolo")->find($value);
-            $protocolo->setProyecto($proyecto);
-          }
+          $actividad = new Actividad($nombre);
+          $em->persist($actividad);
           $em->flush();
           $response = [ 'code'=>200,
-                        'data'=>$proyecto];
+                        'data'=>$actividad];
           return new Response($serializer->serialize($response, "json"));
       } catch (\Exception $e) {
           $response = ['code'=>500,

@@ -43,10 +43,10 @@ class BonitaService
   }
 
  /** busca un proceso por nombre **/
-  public function findProcessByName(){
+  public function findProcessByName($nameProcess){
     $cache = new FilesystemAdapter();
     $credenciales = $cache->getItem($this->cacheNamespace)->get();
-    $response = $this->client->request('GET',$this->url('/API/bpm/process?f=name=Pool'),[ //('Pool' nombre de un ejemplo de proceso) El nombre real  seria Aprobacion de medicamento
+    $response = $this->client->request('GET',$this->url('/API/bpm/process?f=name='.$nameProcess),[ //('Pool' nombre de un ejemplo de proceso) El nombre real  seria Aprobacion de medicamento
                 'headers'=> [ 'Content-Type'=>'application/json',
                               'Cookie'=>$credenciales['cookie']]
                 ]);

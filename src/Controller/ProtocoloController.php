@@ -38,12 +38,12 @@ class ProtocoloController extends FOSRestController
    {
      $serializer = $this->get('jms_serializer');
      $em = $this->getDoctrine()->getManager();
-     $protocolos = $em->getRepository("App:Protocolo")->findAll();
+     $protocolos = $em->getRepository("App:Protocolo")->findBy(['proyecto' => NULL]);
      return new Response($serializer->serialize($protocolos, "json"));
    }
 
     /**
-     * @Rest\Post("/nuevo", name="nuevo_protocolo")
+     * @Rest\Post("/alta", name="nuevo_protocolo")
      * @Rest\RequestParam(name="responsable",nullable=false)
      * @Rest\RequestParam(name="proyecto",nullable=false)
      * @Rest\RequestParam(name="actividades",nullable=false)
@@ -65,10 +65,9 @@ class ProtocoloController extends FOSRestController
         $orden = $paramFetcher->get('orden');
         $local = $paramFetcher->get('local');
         $protocolo = new Protocolo($nombre,$responsable,$proyecto,$orden,$local);
-        $actividades = json_decode($paramFetcher->get('actividades'));
+        $actividades = $paramFetcher->get('actividades');
         foreach ($actividades as $value) {
-          $actividad = new Actividad($value);
-          $em->persist($actividad);
+          $actividad = $em->getRepository("App:Protocolo")->find($value);
           $actividadProtocolo = new ActividadProtocolo($protocolo,$actividad);
           $em->persist($actividadProtocolo);
         }
@@ -82,24 +81,6 @@ class ProtocoloController extends FOSRestController
                        'message'=>$e->getMessage()];
           return new Response($serializer->serialize($response, "json"));
       }
-    }
-
-    /**
-     * @Rest\Get("/test", name="test")
-     *
-     * @SWG\Response(response=201,description="User was successfully registered")
-     * @SWG\Response(response=500,description="User was not successfully registered")
-     * @SWG\Parameter(name="_protocolo",in="body",type="string",description="protocolo",schema={})
-     * @SWG\Tag(name="Protocolo")
-     */
-    public function test(BonitaService $bonita)
-    {
-      //
-      $serializer = $this->get('jms_serializer');
-      $data = $bonita->loginService();
-      $response = [ 'code'=>200,
-                    'data'=>$data];
-      return new Response($serializer->serialize($response, "json"));
     }
 
 
