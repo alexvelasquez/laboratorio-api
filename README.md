@@ -38,11 +38,9 @@ openssl genrsa -out config/jwt/private.pem 4096,
 openssl rsa -pubout -in config/jwt/private.pem -out config/jwt/public.pem
 ```
 
-_Crear Database_
-
+_IMPORTAR DATABASE_
 ```
-php bin/console doctrine:database:create
-php bin/console doctrine:schema:update --force
+importar la DB laboratorio-api.sql
 ```
 _LEVANTAR SERVIDOR_
 
