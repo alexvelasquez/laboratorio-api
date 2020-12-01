@@ -20,13 +20,12 @@ class BonitaService
       $this->baseUrl = $baseUrl;
       $this->cacheNamespace = $cacheNamespace;
   }
-  public function loginService()
-  {
+  public function loginService(){
     $cache = new FilesystemAdapter();
     /** elimino la cache **/
     $cache->delete($this->cacheNamespace);
     /** agrego las nuevas credenciales en la cache**/
-    $cookieBonita = $cache->get($this->cacheNamespace, function (ItemInterface $item) {
+    $cacheBonita = $cache->get($this->cacheNamespace, function (ItemInterface $item) {
       $item->expiresAfter(43200);
       $response = $this->client->request('POST',$this->url('/loginservice'),[
                   'body' => 'username=walter.bates&password=bpm&redirect=false&redirectURL=']);
@@ -47,31 +46,32 @@ class BonitaService
   public function findProcessByName(){
     $cache = new FilesystemAdapter();
     $credenciales = $cache->getItem($this->cacheNamespace)->get();
-    $response = $this->client->request('GET',$this->url('/API/bpm/process?f=name=Pool'),[
+    $response = $this->client->request('GET',$this->url('/API/bpm/process?f=name=Pool'),[ //('Pool' nombre de un ejemplo de proceso) El nombre real  seria Aprobacion de medicamento
                 'headers'=> [ 'Content-Type'=>'application/json',
                               'Cookie'=>$credenciales['cookie']]
                 ]);
     return json_decode($response->getContent())[0];
   }
 
+
   public function startProcess($process)
   {
     $cache = new FilesystemAdapter();
-    $credenciales = $cache->getItem($this->cacheNamespace)->get();
+    $credenciales = $cache->getItem($this->cacheNamespace)->get(); // me quedo con las credenciales de bonita
     $response = $this->client->request('POST',$this->url('/API/bpm/process/'.$process.'/instantiation'),[
                 'headers'=> ['Content-Type'=>'application/json',
                             'X-Bonita-API-Token'=>$credenciales['X-Bonita-API-Token'],
                             'Cookie'=>$credenciales['cookie']],
-                'json' => ['ticket_account' => 'Jefe de proyecto',
-                           "ticket_description"=>"issue description",
-                           "ticket_subject"=>"Issue 1"
+                'json' => ['ticket_account' => '',
+                           "ticket_description"=>"",
+                           "ticket_subject"=>""
                          ]
                 ],
               );
     return  json_decode($response->getContent());
   }
 
-  /** Crea un caso para el proceso encontrado **/
+  /** Crea un caso para un proceso pasado como parametro**/
   public function createCase($proceso)
   {
     $cache = new FilesystemAdapter();
