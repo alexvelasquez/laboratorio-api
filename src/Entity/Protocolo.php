@@ -83,13 +83,10 @@ class Protocolo
      */
     private $proyecto;
 
-    public function __construct($nombre,$responsable,$proyecto,$orden,$local)
+    public function __construct($nombre,$local)
     {
       $this->nombre = $nombre;
-      $this->responsable = $responsable;
-      $this->proyecto = $proyecto;
-      $this->orden = $orden;
-      $this->esLocal = $local; 
+      $this->esLocal = $local;
     }
 
     public function getProtocoloId(): ?int

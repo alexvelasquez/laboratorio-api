@@ -45,11 +45,8 @@ class ProtocoloController extends FOSRestController
 
     /**
      * @Rest\Post("/alta", name="nuevo_protocolo")
-     * @Rest\RequestParam(name="responsable",nullable=false)
-     * @Rest\RequestParam(name="proyecto",nullable=true)
      * @Rest\RequestParam(name="actividades",nullable=false)
      * @Rest\RequestParam(name="nombre",nullable=false)
-     * @Rest\RequestParam(name="orden",nullable=true)
      * @Rest\RequestParam(name="local",nullable=true)
      * @SWG\Response(response=201,description="User was successfully registered")
      * @SWG\Response(response=500,description="User was not successfully registered")
@@ -60,12 +57,9 @@ class ProtocoloController extends FOSRestController
       try {
         $serializer = $this->get('jms_serializer');
         $em = $this->getDoctrine()->getManager();
-        $responsable = $em->getRepository('App:User')->find($paramFetcher->get('responsable'));
-        $proyecto = !empty($paramFetcher->get('proyecto')) ? $em->getRepository('App:Proyecto')->find($paramFetcher->get('proyecto')) : NULL;
         $nombre = $paramFetcher->get('nombre');
-        $orden = $paramFetcher->get('orden');
         $local = $paramFetcher->get('local');
-        $protocolo = new Protocolo($nombre,$responsable,$proyecto,$orden,$local);
+        $protocolo = new Protocolo($nombre,$local);
         $em->persist($protocolo);
         $actividades = $paramFetcher->get('actividades');
         foreach ($actividades as $value) {
