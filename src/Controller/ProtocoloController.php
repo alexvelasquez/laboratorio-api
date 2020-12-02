@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Entity\Protocolo;
+use App\Entity\ActividadProtocolo;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
@@ -45,7 +46,7 @@ class ProtocoloController extends FOSRestController
     /**
      * @Rest\Post("/alta", name="nuevo_protocolo")
      * @Rest\RequestParam(name="responsable",nullable=false)
-     * @Rest\RequestParam(name="proyecto",nullable=false)
+     * @Rest\RequestParam(name="proyecto",nullable=true)
      * @Rest\RequestParam(name="actividades",nullable=false)
      * @Rest\RequestParam(name="nombre",nullable=false)
      * @Rest\RequestParam(name="orden",nullable=true)
@@ -60,18 +61,18 @@ class ProtocoloController extends FOSRestController
         $serializer = $this->get('jms_serializer');
         $em = $this->getDoctrine()->getManager();
         $responsable = $em->getRepository('App:User')->find($paramFetcher->get('responsable'));
-        $proyecto = $em->getRepository('App:Proyecto')->find($paramFetcher->get('proyecto'));
+        $proyecto = !empty($paramFetcher->get('proyecto')) ? $em->getRepository('App:Proyecto')->find($paramFetcher->get('proyecto')) : NULL;
         $nombre = $paramFetcher->get('nombre');
         $orden = $paramFetcher->get('orden');
         $local = $paramFetcher->get('local');
         $protocolo = new Protocolo($nombre,$responsable,$proyecto,$orden,$local);
+        $em->persist($protocolo);
         $actividades = $paramFetcher->get('actividades');
         foreach ($actividades as $value) {
-          $actividad = $em->getRepository("App:Protocolo")->find($value);
+          $actividad = $em->getRepository("App:Actividad")->find($value);
           $actividadProtocolo = new ActividadProtocolo($protocolo,$actividad);
           $em->persist($actividadProtocolo);
         }
-        $em->persist($protocolo);
         $em->flush();
         $response = [ 'code'=>200,
                       'data'=>$protocolo];

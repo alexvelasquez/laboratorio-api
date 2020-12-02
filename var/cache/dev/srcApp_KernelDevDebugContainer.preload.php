@@ -10,7 +10,7 @@ if (in_array(PHP_SAPI, ['cli', 'phpdbg'], true)) {
 }
 
 require dirname(__DIR__, 3).''.\DIRECTORY_SEPARATOR.'vendor/autoload.php';
-require __DIR__.'/ContainerLx3T7mU/srcApp_KernelDevDebugContainer.php';
+require __DIR__.'/Container2RlxK6X/srcApp_KernelDevDebugContainer.php';
 
 $classes = [];
 $classes[] = 'Symfony\Bundle\FrameworkBundle\FrameworkBundle';
@@ -32,6 +32,7 @@ $classes[] = 'Symfony\Bundle\FrameworkBundle\Controller\ControllerNameParser';
 $classes[] = 'Symfony\Bundle\FrameworkBundle\EventListener\ResolveControllerNameSubscriber';
 $classes[] = 'Symfony\Component\HttpFoundation\RequestMatcher';
 $classes[] = 'Symfony\Component\DependencyInjection\ServiceLocator';
+$classes[] = 'App\Controller\ActividadController';
 $classes[] = 'App\Controller\LoginController';
 $classes[] = 'App\Controller\ProtocoloController';
 $classes[] = 'App\Controller\ProyectoController';
@@ -209,6 +210,7 @@ $classes[] = 'JMS\Serializer\Handler\DateHandler';
 $classes[] = 'JMS\SerializerBundle\ContextFactory\ConfiguredContextFactory';
 $classes[] = 'JMS\Serializer\EventDispatcher\Subscriber\DoctrineProxySubscriber';
 $classes[] = 'JMS\Serializer\Handler\IteratorHandler';
+$classes[] = 'JMS\Serializer\Metadata\Driver\TypedPropertiesDriver';
 $classes[] = 'JMS\Serializer\Metadata\Driver\DoctrineTypeDriver';
 $classes[] = 'Metadata\Driver\DriverChain';
 $classes[] = 'JMS\Serializer\Metadata\Driver\YamlDriver';

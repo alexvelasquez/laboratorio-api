@@ -83,10 +83,11 @@ class Protocolo
      */
     private $proyecto;
 
-    public function __construct($nombre,$responsable,$orden,$local)
+    public function __construct($nombre,$responsable,$proyecto,$orden,$local)
     {
       $this->nombre = $nombre;
       $this->responsable = $responsable;
+      $this->proyecto = $proyecto;
       $this->orden = $orden;
       $this->esLocal = $local; 
     }
