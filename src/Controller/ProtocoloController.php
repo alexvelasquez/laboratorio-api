@@ -43,6 +43,22 @@ class ProtocoloController extends FOSRestController
      return new Response($serializer->serialize($protocolos, "json"));
    }
 
+  /**
+   * @Rest\Get("/vertodos", name="protocolos_vertodos")
+   *
+   * @SWG\Response(response=201,description="User was successfully registered")
+   * @SWG\Response(response=500,description="User was not successfully registered")
+   * @SWG\Parameter(name="_protocolo",in="body",type="string",description="protocolo",schema={})
+   * @SWG\Tag(name="Protocolo")
+   */
+   public function verTodos()
+   {
+     $serializer = $this->get('jms_serializer');
+     $em = $this->getDoctrine()->getManager();
+     $protocolos = $em->getRepository("App:Protocolo")->findAll();
+     return new Response($serializer->serialize($protocolos, "json"));
+   }
+
     /**
      * @Rest\Post("/alta", name="nuevo_protocolo")
      * @Rest\RequestParam(name="actividades",nullable=false)
