@@ -39,6 +39,22 @@ class ProyectoController extends FOSRestController
        return new Response($serializer->serialize($proyectos, "json"));
      }
 
+     /**
+      * @Rest\Get("/verTodos", name="proyectos")
+      *
+      * @SWG\Response(response=201,description="User was successfully registered")
+      * @SWG\Response(response=500,description="User was not successfully registered")
+      * @SWG\Tag(name="Proyecto")
+      */
+      public function proyectosConProtocolos()
+      {
+        $serializer = $this->get('jms_serializer');
+        $em = $this->getDoctrine()->getManager();
+        $proyectos = $em->getRepository("App:Proyecto")->proyectosConProtocolos();
+        return new Response($serializer->serialize($proyectos, "json"));
+      }
+
+
     /**
      * @Rest\Post("/alta", name="nuevo")
      * @Rest\RequestParam(name="nombre",nullable=false)

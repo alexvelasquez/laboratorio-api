@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Proyecto
  *
  * @ORM\Table(name="proyecto", indexes={@ORM\Index(name="proyecto_responsable", columns={"responsable_id"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="App\Repository\ProyectoRepository");
  */
 class Proyecto
 {
@@ -51,6 +51,8 @@ class Proyecto
      * })
      */
     private $responsable;
+
+    private $protocolos;
 
     public function __construct($nombre,$responsable,$fechaFin)
     {
@@ -112,6 +114,19 @@ class Proyecto
 
         return $this;
     }
+
+    public function getProtocolos(): ?Array
+    {
+        return $this->protocolos;
+    }
+
+    public function setProtocolos(?Array $protocolos): self
+    {
+        $this->protocolos = $protocolos;
+
+        return $this;
+    }
+
 
 
 }
