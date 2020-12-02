@@ -107,4 +107,21 @@ class LoginController extends FOSRestController
         return new Response($serializer->serialize($response, "json"));
     }
 
+    /**
+     * @Rest\Get("/currentUser", name="user_login_check")
+     *
+     * @SWG\Response(response=200,description="User was logged in successfully")
+     * @SWG\Response(response=500,description="User was not logged in successfully")
+     * @SWG\Tag(name="User")
+     */
+    public function currentUser() {
+      $serializer = $this->get('jms_serializer');
+      $response = [
+          'code' => 200,
+          'data' => $this->getUser()
+      ];
+      return new Response($serializer->serialize($response, "json"));
+    }
+
+
 }

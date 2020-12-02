@@ -83,6 +83,8 @@ class Protocolo
      */
     private $proyecto;
 
+    private $ejecutable;
+
     public function __construct($nombre,$local)
     {
       $this->nombre = $nombre;
@@ -187,6 +189,16 @@ class Protocolo
     {
         $this->proyecto = $proyecto;
 
+        return $this;
+    }
+    public function getEjecutable(): ?string
+    {
+        return $this->ejecutable;
+    }
+
+    public function setEjecutable(?string $ejecutable): self
+    {
+        $this->ejecutable = $ejecutable;
         return $this;
     }
 

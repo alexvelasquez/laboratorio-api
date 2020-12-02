@@ -3,6 +3,7 @@ namespace App\Controller;
 
 use App\Entity\Protocolo;
 use App\Entity\ActividadProtocolo;
+use App\Entity\User;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
@@ -59,6 +60,34 @@ class ProtocoloController extends FOSRestController
      return new Response($serializer->serialize($protocolos, "json"));
    }
 
+   /**
+    * @Rest\Get("/responsable/{responsable}", name="protocolos_responsable")
+    * @SWG\Response(response=201,description="User was successfully registered")
+    * @SWG\Response(response=500,description="User was not successfully registered")
+    * @SWG\Parameter(name="_protocolo",in="body",type="string",description="protocolo",schema={})
+    * @SWG\Tag(name="Protocolo")
+    */
+   public function protocolosResponsable(User $responsable) {
+     try {
+
+       $serializer = $this->get('jms_serializer');
+       $em = $this->getDoctrine()->getManager();
+       $protocolos = $em->getRepository("App:Protocolo")->findBy(["responsable"=>$responsable]);
+       foreach ($protocolos as $value) {
+         $protocolosProyecto = $em->getRepository("App:Proyecto")->protocolosProyecto($value->getProyecto());
+         $em->getRepository("App:Proyecto")->configurarEjecucion($protocolosProyecto,$value);
+       }
+       $response = [ 'code'=>200,
+                     'data'=>$protocolos];
+       return new Response($serializer->serialize($response, "json"));
+     } catch (\Exception $e) {
+         $response = ['code'=>500,
+                      'message'=>$e->getMessage()];
+         return new Response($serializer->serialize($response, "json"));
+     }
+   }
+
+
     /**
      * @Rest\Post("/alta", name="nuevo_protocolo")
      * @Rest\RequestParam(name="actividades",nullable=false)
@@ -93,6 +122,45 @@ class ProtocoloController extends FOSRestController
           return new Response($serializer->serialize($response, "json"));
       }
     }
+
+    /**
+     * @Rest\Post("/ejecutar/{protocolo}", name="ejecutar_protocolo")
+     * @Rest\RequestParam(name="actividades",nullable=false)
+     * @Rest\RequestParam(name="nombre",nullable=false)
+     * @Rest\RequestParam(name="local",nullable=true)
+     * @SWG\Response(response=201,description="User was successfully registered")
+     * @SWG\Response(response=500,description="User was not successfully registered")
+     * @SWG\Parameter(name="_protocolo",in="body",type="string",description="protocolo",schema={})
+     * @SWG\Tag(name="Protocolo")
+     */
+    public function ejecutarProtocolo(ParamFetcher $paramFetcher) {
+      try {
+        $serializer = $this->get('jms_serializer');
+        $em = $this->getDoctrine()->getManager();
+        $nombre = $paramFetcher->get('nombre');
+        $local = $paramFetcher->get('local');
+        $protocolo = new Protocolo($nombre,$local);
+        $em->persist($protocolo);
+        $actividades = $paramFetcher->get('actividades');
+        foreach ($actividades as $value) {
+          $actividad = $em->getRepository("App:Actividad")->find($value);
+          $actividadProtocolo = new ActividadProtocolo($protocolo,$actividad);
+          $em->persist($actividadProtocolo);
+        }
+        $em->flush();
+        $response = [ 'code'=>200,
+                      'data'=>$protocolo];
+        return new Response($serializer->serialize($response, "json"));
+      } catch (\Exception $e) {
+          $response = ['code'=>500,
+                       'message'=>$e->getMessage()];
+          return new Response($serializer->serialize($response, "json"));
+      }
+    }
+
+
+
+
 
 
 
