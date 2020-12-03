@@ -40,7 +40,7 @@ class ProyectoController extends FOSRestController
      }
 
      /**
-      * @Rest\Get("/verTodos", name="proyectos")
+      * @Rest\Get("/vertodos", name="proyectos")
       *
       * @SWG\Response(response=201,description="User was successfully registered")
       * @SWG\Response(response=500,description="User was not successfully registered")
