@@ -78,7 +78,6 @@ class ProyectoController extends FOSRestController
           /** seteo los protocolos para con el proyecto creado **/
           foreach ($protocolos as $value) {
             $responsable = $em->getRepository("App:User")->find($value['responsable']);
-
             $protocolo = $em->getRepository("App:Protocolo")->find($value['protocolo_id']);
             $protocolo->setResponsable($responsable);
             $protocolo->setOrden($value['orden']);

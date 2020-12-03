@@ -80,7 +80,9 @@ class BonitaService
                 'headers'=> ['Content-Type'=>'application/json',
                             'X-Bonita-API-Token'=>$credenciales['X-Bonita-API-Token'],
                             'Cookie'=>$credenciales['cookie']],
-                'json' => ['processDefinitionId' => $proceso]
+                'json' => ['processDefinitionId' => $proceso,
+                           'nombre' => 'AAAAA'
+                          ]
                 ],
               );
     return  json_decode($response->getContent());
