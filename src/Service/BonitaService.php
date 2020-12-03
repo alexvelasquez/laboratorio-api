@@ -28,7 +28,7 @@ class BonitaService
     $cacheBonita = $cache->get($this->cacheNamespace, function (ItemInterface $item) {
       $item->expiresAfter(43200);
       $response = $this->client->request('POST',$this->url('/loginservice'),[
-                  'body' => 'username=walter.bates&password=bpm&redirect=false&redirectURL=']);
+                  'body' => 'username=juan.perez&password=bpm&redirect=false&redirectURL=']);
       $cookie='';
       foreach ($response->getHeaders()['set-cookie'] as $value) {
         $value = explode(";", $value)[0];
@@ -53,24 +53,6 @@ class BonitaService
     return json_decode($response->getContent())[0];
   }
 
-
-  public function startProcess($process)
-  {
-    $cache = new FilesystemAdapter();
-    $credenciales = $cache->getItem($this->cacheNamespace)->get(); // me quedo con las credenciales de bonita
-    $response = $this->client->request('POST',$this->url('/API/bpm/process/'.$process.'/instantiation'),[
-                'headers'=> ['Content-Type'=>'application/json',
-                            'X-Bonita-API-Token'=>$credenciales['X-Bonita-API-Token'],
-                            'Cookie'=>$credenciales['cookie']],
-                'json' => ['ticket_account' => '',
-                           "ticket_description"=>"",
-                           "ticket_subject"=>""
-                         ]
-                ],
-              );
-    return  json_decode($response->getContent());
-  }
-
   /** Crea un caso para un proceso pasado como parametro**/
   public function createCase($proceso)
   {
@@ -80,11 +62,92 @@ class BonitaService
                 'headers'=> ['Content-Type'=>'application/json',
                             'X-Bonita-API-Token'=>$credenciales['X-Bonita-API-Token'],
                             'Cookie'=>$credenciales['cookie']],
-                'json' => ['processDefinitionId' => $proceso,
-                           'nombre' => 'AAAAA'
-                          ]
+                'json' => ['processDefinitionId' => $proceso]
                 ],
               );
+    return  json_decode($response->getContent());
+  }
+
+  public function getCasesProcess($proceso)
+  {
+    $cache = new FilesystemAdapter();
+    $credenciales = $cache->getItem($this->cacheNamespace)->get();
+    $response = $this->client->request('GET',$this->url('/API/bpm/case?p=0&c=10&f=processDefinitionId='.$proceso),[
+                'headers'=> ['Content-Type'=>'application/json',
+                            'X-Bonita-API-Token'=>$credenciales['X-Bonita-API-Token'],
+                            'Cookie'=>$credenciales['cookie']]
+                ],
+              );
+    return  json_decode($response->getContent());
+  }
+
+  /** Seteo una variable de proceso**/
+  public function setVariableCase($case,$variable,$value)
+  {
+    $cache = new FilesystemAdapter();
+    $credenciales = $cache->getItem($this->cacheNamespace)->get();
+    $response = $this->client->request('PUT',$this->url('/API/bpm/caseVariable/'.$case.'/'.$variable),[
+                'headers'=> ['Content-Type'=>'application/json',
+                            'X-Bonita-API-Token'=>$credenciales['X-Bonita-API-Token'],
+                            'Cookie'=>$credenciales['cookie']],
+                'json' => [
+                  "type"=>"java.lang.String",
+                  'value' =>$value],
+                  ]);
+    return  json_decode($response->getContent());
+  }
+
+  /**actividad actual**/
+   public function getActivityCurrent($case)
+  {
+    $cache = new FilesystemAdapter();
+    $credenciales = $cache->getItem($this->cacheNamespace)->get();
+    $response = $this->client->request('GET',$this->url('/API/bpm/activity?p=0&c=10&f=caseId%3d'.$case),[
+                'headers'=> ['Content-Type'=>'application/json',
+                            'X-Bonita-API-Token'=>$credenciales['X-Bonita-API-Token'],
+                            'Cookie'=>$credenciales['cookie']],
+                  ]);
+    return  json_decode($response->getContent());
+  }
+  /** finalizar actividad**/
+   public function executeActivity($actividad)
+  {
+    $cache = new FilesystemAdapter();
+    $credenciales = $cache->getItem($this->cacheNamespace)->get();
+    // $actividad = ()$this->getActivityCurrent($case);
+    $response = $this->client->request('POST',$this->url('/API/bpm/userTask/'.$actividad.'/execution?assign=true'),[
+                'headers'=> ['Content-Type'=>'application/json',
+                            'X-Bonita-API-Token'=>$credenciales['X-Bonita-API-Token'],
+                            'Cookie'=>$credenciales['cookie']]
+                  ]);
+    return  json_decode($response->getContent());
+  }
+
+  /** finalizar actividad**/
+   public function finishActivity($actividad)
+  {
+    $cache = new FilesystemAdapter();
+    $credenciales = $cache->getItem($this->cacheNamespace)->get();
+    // $actividad = ()$this->getActivityCurrent($case);
+    $response = $this->client->request('PUT',$this->url('/API/bpm/activity/'.$actividad),[
+                'headers'=> ['Content-Type'=>'application/json',
+                            'X-Bonita-API-Token'=>$credenciales['X-Bonita-API-Token'],
+                            'Cookie'=>$credenciales['cookie']],
+                'json' => ['state' =>'completed'],
+                  ]);
+    return  json_decode($response->getContent());
+  }
+
+  /** actor **/
+   public function actorByName($name)
+  {
+    $cache = new FilesystemAdapter();
+    $credenciales = $cache->getItem($this->cacheNamespace)->get();
+    $actividad = $this->getActivityCurrent($case);
+    $response = $this->client->request('GET',$this->url('/API/bpm/actor?f=name='.$name),[
+                'headers'=> ['Content-Type'=>'application/json',
+                            'X-Bonita-API-Token'=>$credenciales['X-Bonita-API-Token'],
+                            'Cookie'=>$credenciales['cookie']]]);
     return  json_decode($response->getContent());
   }
 
@@ -96,8 +159,7 @@ class BonitaService
       $response = $this->client->request('DELETE',$this->url('/API/bpm/case/'.$case),[
                 'headers'=> ['X-Bonita-API-Token'=>$credenciales['X-Bonita-API-Token'],
                             'Cookie'=>$credenciales['cookie']]
-                ],
-              );
+                ]);
     return  json_decode($response->getContent());
   }
 
