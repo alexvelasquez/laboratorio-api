@@ -45,7 +45,7 @@ class Protocolo
     /**
      * @var int
      *
-     * @ORM\Column(name="orden", type="integer", nullable=false)
+     * @ORM\Column(name="orden", type="integer", nullable=true)
      */
     private $orden;
 
@@ -68,7 +68,7 @@ class Protocolo
      *
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="responsable_id", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="responsable_id", referencedColumnName="id",nullable=true)
      * })
      */
     private $responsable;
@@ -78,7 +78,7 @@ class Protocolo
      *
      * @ORM\ManyToOne(targetEntity="Proyecto")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="proyecto_id", referencedColumnName="proyecto_id")
+     *   @ORM\JoinColumn(name="proyecto_id", referencedColumnName="proyecto_id",nullable=true)
      * })
      */
     private $proyecto;
