@@ -154,7 +154,7 @@ class ProtocoloController extends FOSRestController
       try {
         $em = $this->getDoctrine()->getManager();
         $puntaje = $paramFetcher->get('puntaje');
-        $protocolo->setPuntaje($puntaje)
+        $protocolo->setPuntaje($puntaje);
         $em->flush();
         $response = [ 'code'=>200,
                       'data'=>$protocolo];
