@@ -20,7 +20,7 @@ class BonitaService
       $this->baseUrl = $baseUrl;
       $this->cacheNamespace = $cacheNamespace;
   }
-  public function loginService(){
+  public function loginService($username){
     $cache = new FilesystemAdapter();
     /** elimino la cache **/
     $cache->delete($this->cacheNamespace);
@@ -28,7 +28,7 @@ class BonitaService
     $cacheBonita = $cache->get($this->cacheNamespace, function (ItemInterface $item) {
       $item->expiresAfter(43200);
       $response = $this->client->request('POST',$this->url('/loginservice'),[
-                  'body' => 'username=juan.perez&password=bpm&redirect=false&redirectURL=']);
+                  'body' => 'username='.$username.'&password=bpm&redirect=false&redirectURL=']);
       $cookie='';
       foreach ($response->getHeaders()['set-cookie'] as $value) {
         $value = explode(";", $value)[0];
@@ -54,8 +54,9 @@ class BonitaService
   }
 
   /** Crea un caso para un proceso pasado como parametro**/
-  public function createCase($proceso)
+  public function createCase($nameProcess)
   {
+    $proceso = $this->findProcessByName($nameProcess)->id; //me quedo con el id del proceso
     $cache = new FilesystemAdapter();
     $credenciales = $cache->getItem($this->cacheNamespace)->get();
     $response = $this->client->request('POST',$this->url('/API/bpm/case'),[
@@ -162,6 +163,18 @@ class BonitaService
                 ]);
     return  json_decode($response->getContent());
   }
+
+  // /** Crea un caso para el proceso encontrado **/
+  // public function taskUser($case)
+  // {
+  //   $cache = new FilesystemAdapter();
+  //   $credenciales = $cache->getItem($this->cacheNamespace)->get();
+  //     $response = $this->client->request('DELETE',$this->url('/API/bpm/case/'.$case),[
+  //               'headers'=> ['X-Bonita-API-Token'=>$credenciales['X-Bonita-API-Token'],
+  //                           'Cookie'=>$credenciales['cookie']]
+  //               ]);
+  //   return  json_decode($response->getContent());
+  // }
 
   private function url($url)
   {

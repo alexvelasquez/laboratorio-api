@@ -47,15 +47,15 @@ class LoginController extends FOSRestController
     public function loginBonita(BonitaService $bonita) {
       $serializer = $this->get('jms_serializer');
       $bonita->loginService();
-      $proceso = $bonita->findProcessByName('Prueba')->id;
-
-      $caso = ($bonita->getCasesProcess($proceso))[0] ?? [];
-      //$caso = $bonita->createCase($proceso); //instancia de $proceso
-      // $variable = $bonita->setVariableCase($caso->id,'nombre','JJJJ');
-      $actividad = ($bonita->getActivityCurrent($caso->id))[0];
-      // dump($actividad);
-      $finish = $bonita->executeActivity($actividad->id);
-      dd($finish);
+      // $proceso = $bonita->findProcessByName('Prueba')->id;
+      //
+      // $caso = ($bonita->getCasesProcess($proceso))[0] ?? [];
+      // //$caso = $bonita->createCase($proceso); //instancia de $proceso
+      // // $variable = $bonita->setVariableCase($caso->id,'nombre','JJJJ');
+      // $actividad = ($bonita->getActivityCurrent($caso->id))[0];
+      // // dump($actividad);
+      // $finish = $bonita->executeActivity($actividad->id);
+      // dd($finish);
       $response = [ 'code'=>200,
                     'data'=>$data];
       return new JsonResponse($response);

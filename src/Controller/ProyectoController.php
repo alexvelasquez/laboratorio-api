@@ -15,6 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
+use App\Service\BonitaService;
 
 /**
  * Class ApiController
@@ -82,8 +83,23 @@ class ProyectoController extends FOSRestController
             $protocolo->setResponsable($responsable);
             $protocolo->setOrden($value['orden']);
             $protocolo->setProyecto($proyecto);
+            $protocolo->setActual('N');
+            // $em->getRepository("App:Proyecto")->configurarEjecucion($protocolosProyecto,$value);
           }
           $em->flush();
+          $procotolo = $em->getRepository("App:Protocolo")->findBy([],['orden'=>'ASC'])[0];
+          $procotolo->setActual('S');
+          $em->flush();
+
+          /** BonitaService **/
+          $bonita->loginService($this->getUser()->getUsername());//me logeo en bonita;
+          $caso = $bonita->createCase('Aprobacion de un medicamento');
+          $bonita->setVariableCase($caso->id,'protocolo',$serializer->serialize($protocolo, "json"));
+          $actividad = $bonita->getActivityCurrent($caso->id);
+          if(!empty($actividad)){
+            $bonita->executeActivity($actividad[0]->id);//ejecuto la actividad
+          }
+
           $response = [ 'code'=>200,
                         'data'=>$proyecto];
           return new Response($serializer->serialize($response, "json"));
