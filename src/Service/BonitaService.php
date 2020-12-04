@@ -28,7 +28,7 @@ class BonitaService
     $cacheBonita = $cache->get($this->cacheNamespace, function (ItemInterface $item) {
       $item->expiresAfter(43200);
       $response = $this->client->request('POST',$this->url('/loginservice'),[
-                  'body' => 'username='.$username.'&password=bpm&redirect=false&redirectURL=']);
+                  'body' => 'username=jefe.proyecto&password=bpm&redirect=false&redirectURL=']);
       $cookie='';
       foreach ($response->getHeaders()['set-cookie'] as $value) {
         $value = explode(";", $value)[0];

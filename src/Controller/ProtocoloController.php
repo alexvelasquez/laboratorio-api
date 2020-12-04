@@ -89,7 +89,7 @@ class ProtocoloController extends FOSRestController
 
        $serializer = $this->get('jms_serializer');
        $em = $this->getDoctrine()->getManager();
-       $protocolos = $em->getRepository("App:Protocolo")->findBy(["responsable"=>$responsable]);
+       $protocolos = $em->getRepository("App:Protocolo")->findBy(["responsable"=>$responsable, "fechaInicio" => NULL]);
        foreach ($protocolos as $value) {
          $protocolosProyecto = $em->getRepository("App:Proyecto")->protocolosProyecto($value->getProyecto());
          $em->getRepository("App:Proyecto")->configurarEjecucion($protocolosProyecto,$value);
@@ -152,9 +152,12 @@ class ProtocoloController extends FOSRestController
      */
     public function realizarProtocolo(ParamFetcher $paramFetcher, Protocolo $protocolo) {
       try {
+        $serializer = $this->get('jms_serializer');
         $em = $this->getDoctrine()->getManager();
         $puntaje = $paramFetcher->get('puntaje');
         $protocolo->setPuntaje($puntaje);
+        $protocolo->setFechaInicio(new \DateTime());
+        $protocolo->setFechaFin(new \DateTime());
         $em->flush();
         $response = [ 'code'=>200,
                       'data'=>$protocolo];

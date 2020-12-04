@@ -66,7 +66,7 @@ class ProyectoController extends FOSRestController
      * @SWG\Parameter(name="_protocolo",in="body",type="string",description="protocolo",schema={})
      * @SWG\Tag(name="Proyecto")
      */
-    public function nuevoProyecto(ParamFetcher $paramFetcher) {
+    public function nuevoProyecto(ParamFetcher $paramFetcher, BonitaService $bonita) {
       try {
           $serializer = $this->get('jms_serializer');
           $em = $this->getDoctrine()->getManager();
@@ -94,11 +94,12 @@ class ProyectoController extends FOSRestController
           /** BonitaService **/
           $bonita->loginService($this->getUser()->getUsername());//me logeo en bonita;
           $caso = $bonita->createCase('Aprobacion de un medicamento');
-          $bonita->setVariableCase($caso->id,'protocolo',$serializer->serialize($protocolo, "json"));
-          $actividad = $bonita->getActivityCurrent($caso->id);
-          if(!empty($actividad)){
-            $bonita->executeActivity($actividad[0]->id);//ejecuto la actividad
-          }
+          // $bonita->setVariableCase($caso->id,'protocolo',$serializer->serialize($protocolo, "json"));
+          
+          // $actividad = $bonita->getActivityCurrent($caso->id);
+          // if(!empty($actividad)){
+          //   $bonita->executeActivity($actividad[0]->id);//ejecuto la actividad
+          // }
 
           $response = [ 'code'=>200,
                         'data'=>$proyecto];

@@ -57,6 +57,13 @@ class Protocolo
     private $esLocal;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="actual", type="string", length=1, nullable=true)
+     */
+    private $actual;
+
+    /**
      * @var int|null
      *
      * @ORM\Column(name="puntaje", type="integer", nullable=true)
@@ -152,6 +159,18 @@ class Protocolo
     public function setEsLocal(string $esLocal): self
     {
         $this->esLocal = $esLocal;
+
+        return $this;
+    }
+
+    public function getActual(): ?string
+    {
+        return $this->actual;
+    }
+
+    public function setActual(string $actual): self
+    {
+        $this->actual = $actual;
 
         return $this;
     }

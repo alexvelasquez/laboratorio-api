@@ -28,14 +28,14 @@ class ProyectoRepository extends EntityRepository
 
   public function configurarEjecucion($protocolos,&$protocolo){
     $protocoloAnterior = null;
-    $protocolo->setEjecutable('N');
+    $protocolo->setActual('N');
     foreach ($protocolos as $value) {
       if($value->getProtocoloId() == $protocolo->getProtocoloId()){
         if(empty($protocoloAnterior)){
-          $protocolo->setEjecutable('S');
+          $protocolo->setActual('S');
         }
         elseif(!empty($protocoloAnterior->getFechaInicio()) && !empty($protocoloAnterior->getFechaDesde())){
-          $protocolo->setEjecutable('S');
+          $protocolo->setActual('S');
         }
         break;
       }
