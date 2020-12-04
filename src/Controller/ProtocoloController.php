@@ -61,6 +61,23 @@ class ProtocoloController extends FOSRestController
    }
 
    /**
+    * @Rest\Get("/actividades/{protocolo}", name="actividades_protocolos")
+    *
+    * @SWG\Response(response=201,description="User was successfully registered")
+    * @SWG\Response(response=500,description="User was not successfully registered")
+    * @SWG\Parameter(name="_protocolo",in="body",type="string",description="protocolo",schema={})
+    * @SWG\Tag(name="Protocolo")
+    */
+    public function actividadProtocolos(Protocolo $protocolo)
+    {
+      $serializer = $this->get('jms_serializer');
+      $em = $this->getDoctrine()->getManager();
+      $protocolos = $em->getRepository("App:ActividadProtocolo")->findBy(['protocolo' => $protocolo]);
+      return new Response($serializer->serialize($protocolos, "json"));
+    }
+
+
+   /**
     * @Rest\Get("/responsable/{responsable}", name="protocolos_responsable")
     * @SWG\Response(response=201,description="User was successfully registered")
     * @SWG\Response(response=500,description="User was not successfully registered")
@@ -123,30 +140,21 @@ class ProtocoloController extends FOSRestController
       }
     }
 
+
+
     /**
-     * @Rest\Post("/ejecutar/{protocolo}", name="ejecutar_protocolo")
-     * @Rest\RequestParam(name="actividades",nullable=false)
-     * @Rest\RequestParam(name="nombre",nullable=false)
-     * @Rest\RequestParam(name="local",nullable=true)
+     * @Rest\Post("/realizarProtocolo/{protocolo}", name="realizar_protocolo")
+     * @Rest\RequestParam(name="puntaje",nullable=false)
      * @SWG\Response(response=201,description="User was successfully registered")
      * @SWG\Response(response=500,description="User was not successfully registered")
      * @SWG\Parameter(name="_protocolo",in="body",type="string",description="protocolo",schema={})
      * @SWG\Tag(name="Protocolo")
      */
-    public function ejecutarProtocolo(ParamFetcher $paramFetcher) {
+    public function realizarProtocolo(ParamFetcher $paramFetcher, Protocolo $protocolo) {
       try {
-        $serializer = $this->get('jms_serializer');
         $em = $this->getDoctrine()->getManager();
-        $nombre = $paramFetcher->get('nombre');
-        $local = $paramFetcher->get('local');
-        $protocolo = new Protocolo($nombre,$local);
-        $em->persist($protocolo);
-        $actividades = $paramFetcher->get('actividades');
-        foreach ($actividades as $value) {
-          $actividad = $em->getRepository("App:Actividad")->find($value);
-          $actividadProtocolo = new ActividadProtocolo($protocolo,$actividad);
-          $em->persist($actividadProtocolo);
-        }
+        $puntaje = $paramFetcher->get('puntaje');
+        $protocolo->setPuntaje($puntaje)
         $em->flush();
         $response = [ 'code'=>200,
                       'data'=>$protocolo];
@@ -158,7 +166,23 @@ class ProtocoloController extends FOSRestController
       }
     }
 
-
+    /**
+     * @Rest\Post("/reestablecer/{protocolo}", name="reestablecer_protocolo")
+     * @SWG\Response(response=201,description="User was successfully registered")
+     * @SWG\Response(response=500,description="User was not successfully registered")
+     * @SWG\Parameter(name="_protocolo",in="body",type="string",description="protocolo",schema={})
+     * @SWG\Tag(name="Protocolo")
+     */
+    public function reestablecerProtocolo(Protocolo $protocolo)
+    {
+      $em = $this->getDoctrine()->getManager();
+      $procotolo->setFechaFin(NULL);
+      $protocolo->setFechaInicio(NULL);
+      $em->flush();
+      $response = [ 'code'=>200,
+                    'data'=>$protocolo];
+      return new Response($serializer->serialize($response, "json"));
+    }
 
 
 

@@ -108,12 +108,12 @@ class Protocolo
         return $this;
     }
 
-    public function getFechaInicio(): ?\DateTimeInterface
+    public function getFechaInicio()
     {
         return $this->fechaInicio;
     }
 
-    public function setFechaInicio(?\DateTimeInterface $fechaInicio): self
+    public function setFechaInicio($fechaInicio)
     {
         $this->fechaInicio = $fechaInicio;
 

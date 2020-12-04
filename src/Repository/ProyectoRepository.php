@@ -42,4 +42,14 @@ class ProyectoRepository extends EntityRepository
       $protocoloAnterior = $value;
     }
   }
+
+  public function reestablecerProyecto($proyecto){
+    $em = $this->getEntityManager();
+    $protocolos = $em->getRepository("App:Protocolo")->findBy(['proyecto'=>$proyecto],['orden'=>'ASC']);
+    foreach ($protocolos as $value) {
+        $value->setFechaInicio(NULL);
+        $value->setFechaFin(NULL);
+    }
+    $em->flush();
+  }
 }
