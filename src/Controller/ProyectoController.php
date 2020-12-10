@@ -126,8 +126,38 @@ class ProyectoController extends FOSRestController
      * @SWG\Parameter(name="_protocolo",in="body",type="string",description="protocolo",schema={})
      * @SWG\Tag(name="Proyecto")
      */
-    public function (Proyecto $proyecto, BonitaService $bonita)
+    public function configurarProyecto(Proyecto $proyecto, BonitaService $bonita)
     {
+      try {
+        $serializer = $this->get('jms_serializer');
+        $em = $this->getDoctrine()->getManager();
+        $protocolo = $em->getRepository('App:Protocolo')->findOneBy(['proyecto'=>$proyecto,'actual'=>'S']);
+        $caso = $proyecto->getCasoId();
+        $dataProtocolo = json_encode(['id_protocolo'=>$protocolo->getProtocoloId(),'es_local'=>$protocolo->getEsLocal()]);
+        $bonita->setVariableCase($caso,'protocolo',$dataProtocolo,'java.lang.String');
+        $actividad= $bonita->getActivityCurrent($caso);
+        $bonita->executeActivity($actividad->id);
+        $response = [ 'code'=>200,
+                      'data'=>'Tarea ejecutada'];
+        return new Response($serializer->serialize($response, "json"));
+      } catch (\Exception $e) {
+        $response = ['code'=>500,
+                     'message'=>$e->getMessage()];
+        return new Response($serializer->serialize($response, "json"));
+      }
+
+    }
+
+    /**
+     * @Rest\Post("/efectuarcambios", name="efectuarcambios")
+     * @Rest\RequestParam(name="proyecto",nullable=false)
+     * @Rest\RequestParam(name="decision",nullable=false)
+     * @SWG\Response(response=201,description="Los cambios se han realizado con exito")
+     * @SWG\Response(response=500,description="Ha ocurrido un error al intentar realizar los cambios")
+     * @SWG\Parameter(name="_protocolo",in="body",type="string",description="protocolo",schema={})
+     * @SWG\Tag(name="Proyecto")
+     */
+    public function efectuarCambios(ParamFetcher $paramFetcher) {
       try {
           $serializer = $this->get('jms_serializer');
           $em = $this->getDoctrine()->getManager();
@@ -228,11 +258,10 @@ class ProyectoController extends FOSRestController
                         'data'=>$res];
           return new Response($serializer->serialize($response, "json"));
       } catch (\Exception $e) {
-        $response = ['code'=>500,
-                     'message'=>$e->getMessage()];
-        return new Response($serializer->serialize($response, "json"));
+          $response = ['code'=>500,
+                       'message'=>$e->getMessage()];
+          return new Response($serializer->serialize($response, "json"));
       }
-
     }
 
 }
