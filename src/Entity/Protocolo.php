@@ -57,6 +57,13 @@ class Protocolo
     private $esLocal;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="actual", type="string", length=1, nullable=true)
+     */
+    private $actual;
+
+    /**
      * @var int|null
      *
      * @ORM\Column(name="puntaje", type="integer", nullable=true)
@@ -156,6 +163,18 @@ class Protocolo
         return $this;
     }
 
+    public function getActual(): ?string
+    {
+        return $this->actual;
+    }
+
+    public function setActual(string $actual): self
+    {
+        $this->actual = $actual;
+
+        return $this;
+    }
+
     public function getPuntaje(): ?int
     {
         return $this->puntaje;
@@ -191,18 +210,5 @@ class Protocolo
 
         return $this;
     }
-    public function getEjecutable(): ?string
-    {
-        return $this->ejecutable;
-    }
-
-    public function setEjecutable(?string $ejecutable): self
-    {
-        $this->ejecutable = $ejecutable;
-        return $this;
-    }
-
-
-
 
 }

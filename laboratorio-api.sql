@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.2
+-- version 5.0.1
 -- https://www.phpmyadmin.net/
 --
--- Servidor: 127.0.0.1:3307
--- Tiempo de generación: 30-11-2020 a las 22:14:22
--- Versión del servidor: 10.4.10-MariaDB
--- Versión de PHP: 7.3.12
+-- Servidor: 127.0.0.1
+-- Tiempo de generación: 04-12-2020 a las 05:02:12
+-- Versión del servidor: 10.4.11-MariaDB
+-- Versión de PHP: 7.4.3
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -33,6 +33,16 @@ CREATE TABLE `actividad` (
   `nombre` varchar(100) COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+--
+-- Volcado de datos para la tabla `actividad`
+--
+
+INSERT INTO `actividad` (`actividad_id`, `nombre`) VALUES
+(1, 'Analizar compuestos quimicos'),
+(2, 'Hacer pruebas en ratas'),
+(3, 'Evaluar efectividad'),
+(4, 'Control de efectos adversos');
+
 -- --------------------------------------------------------
 
 --
@@ -44,6 +54,32 @@ CREATE TABLE `actividad_protocolo` (
   `protocolo_id` int(11) DEFAULT NULL,
   `actividad_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `actividad_protocolo`
+--
+
+INSERT INTO `actividad_protocolo` (`actividad_procotolo_id`, `protocolo_id`, `actividad_id`) VALUES
+(1, 1, 1),
+(2, 2, 1),
+(3, 2, 2),
+(4, 3, 1),
+(5, 3, 2),
+(6, 3, 3),
+(7, 4, 1),
+(8, 4, 2),
+(9, 4, 3),
+(10, 4, 4),
+(11, 5, 2),
+(12, 5, 4),
+(13, 6, 4),
+(14, 6, 1),
+(15, 7, 3),
+(16, 7, 4),
+(17, 8, 3),
+(18, 8, 4),
+(19, 8, 2),
+(20, 8, 1);
 
 -- --------------------------------------------------------
 
@@ -58,17 +94,25 @@ CREATE TABLE `protocolo` (
   `nombre` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `fecha_inicio` datetime DEFAULT NULL,
   `fecha_fin` datetime DEFAULT NULL,
-  `orden` int(11) NOT NULL,
+  `orden` int(11) DEFAULT NULL,
   `es_local` varchar(1) COLLATE utf8_unicode_ci NOT NULL,
-  `puntaje` int(11) DEFAULT NULL
+  `puntaje` int(11) DEFAULT NULL,
+  `actual` varchar(1) COLLATE utf8_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Volcado de datos para la tabla `protocolo`
 --
 
-INSERT INTO `protocolo` (`protocolo_id`, `responsable_id`, `proyecto_id`, `nombre`, `fecha_inicio`, `fecha_fin`, `orden`, `es_local`, `puntaje`) VALUES
-(1, 1, NULL, 'Protocolo 1', NULL, NULL, 3, 'S', NULL);
+INSERT INTO `protocolo` (`protocolo_id`, `responsable_id`, `proyecto_id`, `nombre`, `fecha_inicio`, `fecha_fin`, `orden`, `es_local`, `puntaje`, `actual`) VALUES
+(1, 6, 1, 'Protocolo A', NULL, NULL, 1, 'N', NULL, 'S'),
+(2, 5, 1, 'Protocolo B', NULL, NULL, 2, 'N', NULL, 'N'),
+(3, 5, 2, 'Protocolo C', NULL, NULL, 1, 'N', NULL, 'N'),
+(4, 6, 2, 'Protocolo D', NULL, NULL, 2, 'N', NULL, 'N'),
+(5, 7, 3, 'Protocolo E', NULL, NULL, 1, 'N', NULL, 'N'),
+(6, 8, 4, 'Protocolo F', NULL, NULL, 1, 'N', NULL, 'N'),
+(7, NULL, NULL, 'Protocolo G', NULL, NULL, NULL, 'N', NULL, NULL),
+(8, NULL, NULL, 'Protocolo H', NULL, NULL, NULL, 'N', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -89,7 +133,10 @@ CREATE TABLE `proyecto` (
 --
 
 INSERT INTO `proyecto` (`proyecto_id`, `responsable_id`, `nombre`, `fecha_inicio`, `fecha_fin`) VALUES
-(1, 2, 'APROBACION ANALGESICO', '2020-11-29 12:42:03', '2020-12-05 00:00:00');
+(1, 9, 'Hepatalgina', '2020-12-04 04:46:34', '2020-12-09 00:00:00'),
+(2, 9, 'Mejoralito', '2020-12-04 04:47:16', '2020-12-17 00:00:00'),
+(3, 9, 'Ibupirac', '2020-12-04 04:47:40', '2020-12-15 00:00:00'),
+(4, 9, 'Pastilla de carbon', '2020-12-04 04:47:59', '2020-12-18 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -113,8 +160,11 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id`, `name`, `email`, `username`, `password`, `roles`, `created_at`, `updated_at`) VALUES
-(1, 'responsable', 'responsable@gmail.com', 'responsable', 'Eti36Ru/pWG6WfoIPiDFUBxUuyvgMA4L8+LLuGbGyqV9ATuT9brCWPchBqX5vFTF+DgntacecW+sSGD+GZts2A==', '[\"ROLE_RESPONSABLE_PROTOCOLO\"]', '2020-11-29 11:47:21', '2020-11-29 11:47:21'),
-(2, 'JEFE', 'jefe@gmail.com', 'jefe', 'Eti36Ru/pWG6WfoIPiDFUBxUuyvgMA4L8+LLuGbGyqV9ATuT9brCWPchBqX5vFTF+DgntacecW+sSGD+GZts2A==', '[\"ROLE_JEFE_PROYECTO\"]', '2020-11-29 13:00:48', '2020-11-29 13:00:48');
+(5, 'Fátima Zárate', 'fatima.zarate@gmail.com', 'fatima.zarate', 'wS9C9c2aSG8L5V/QhH3CZbkLilDIU8A21bfQMCwryOBAY0ER4+cLYjTohMj9dFRo3F5rJWrRl6IQiHhXMd0M7w==', '[\"ROLE_RESPONSABLE_PROTOCOLO\"]', '2020-12-04 03:18:30', '2020-12-04 03:18:30'),
+(6, 'Juan Pérez', 'juan.perez@gmail.com', 'juan.perez', 'wS9C9c2aSG8L5V/QhH3CZbkLilDIU8A21bfQMCwryOBAY0ER4+cLYjTohMj9dFRo3F5rJWrRl6IQiHhXMd0M7w==', '[\"ROLE_RESPONSABLE_PROTOCOLO\"]', '2020-12-04 03:19:02', '2020-12-04 03:19:02'),
+(7, 'Martin Baez', 'martin.baez@gmail.com', 'martin.baez', 'wS9C9c2aSG8L5V/QhH3CZbkLilDIU8A21bfQMCwryOBAY0ER4+cLYjTohMj9dFRo3F5rJWrRl6IQiHhXMd0M7w==', '[\"ROLE_RESPONSABLE_PROTOCOLO\"]', '2020-12-04 03:19:29', '2020-12-04 03:19:29'),
+(8, 'Pedro Gonzalez', 'pedro.gonzalez@gmail.com', 'pedro.gonzalez', 'wS9C9c2aSG8L5V/QhH3CZbkLilDIU8A21bfQMCwryOBAY0ER4+cLYjTohMj9dFRo3F5rJWrRl6IQiHhXMd0M7w==', '[\"ROLE_RESPONSABLE_PROTOCOLO\"]', '2020-12-04 03:19:57', '2020-12-04 03:19:57'),
+(9, 'Jefe Proyecto', 'jefe.proyecto@gmail.com', 'jefe.proyecto', 'wS9C9c2aSG8L5V/QhH3CZbkLilDIU8A21bfQMCwryOBAY0ER4+cLYjTohMj9dFRo3F5rJWrRl6IQiHhXMd0M7w==', '[\"ROLE_JEFE_PROYECTO\"]', '2020-12-04 03:20:45', '2020-12-04 03:20:45');
 
 --
 -- Índices para tablas volcadas
@@ -165,31 +215,31 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT de la tabla `actividad`
 --
 ALTER TABLE `actividad`
-  MODIFY `actividad_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `actividad_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `actividad_protocolo`
 --
 ALTER TABLE `actividad_protocolo`
-  MODIFY `actividad_procotolo_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `actividad_procotolo_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT de la tabla `protocolo`
 --
 ALTER TABLE `protocolo`
-  MODIFY `protocolo_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `protocolo_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de la tabla `proyecto`
 --
 ALTER TABLE `proyecto`
-  MODIFY `proyecto_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `proyecto_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Restricciones para tablas volcadas

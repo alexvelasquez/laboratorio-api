@@ -95,6 +95,16 @@ class ProyectoController extends FOSRestController
           $procotolo->setActual('S');
           $em->flush();
 
+          /** BonitaService **/
+          $bonita->loginService($this->getUser()->getUsername());//me logeo en bonita;
+          $caso = $bonita->createCase('Aprobacion de un medicamento');
+          // $bonita->setVariableCase($caso->id,'protocolo',$serializer->serialize($protocolo, "json"));
+
+          // $actividad = $bonita->getActivityCurrent($caso->id);
+          // if(!empty($actividad)){
+          //   $bonita->executeActivity($actividad[0]->id);//ejecuto la actividad
+          // }
+
           $response = [ 'code'=>200,
                         'data'=>$proyecto];
           return new Response($serializer->serialize($response, "json"));
