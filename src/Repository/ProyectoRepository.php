@@ -34,7 +34,7 @@ class ProyectoRepository extends EntityRepository
         if(empty($protocoloAnterior)){
           $protocolo->setActual('S');
         }
-        elseif(!empty($protocoloAnterior->getFechaInicio()) && !empty($protocoloAnterior->getFechaDesde())){
+        elseif(!empty($protocoloAnterior->getFechaInicio()) && !empty($protocoloAnterior->getFechaFin())){
           $protocolo->setActual('S');
         }
         break;

@@ -131,26 +131,50 @@ class ProyectoController extends FOSRestController
           
           // $responsable = $em->getRepository("App:Protocolo")->find(["puntaje" => 6]);
           $res = null;
-
+          
           switch ($decision){
             
             case 'continuar':
               # Si continua, da por finalizado el protocolo. Y setea el siguiente como el actual
+
             break;
             
             case 'r_proyecto':
               # Reinicia todos los protocolos, sus fechas de inicio, puntaje, etc
               $protocolos = $paramFetcher->get('proyecto')['protocolos'];
+              $proyecto_id = $paramFetcher->get('proyecto')['proyecto_id'];
               $repo = $em->getRepository("App:Protocolo");
 
               foreach ($protocolos as $value) {
                 # code...
-                $res = $repo->findBy($value["protocolo_id"]);
-              }
+                $p = $repo->find($value["protocolo_id"]);
+                // $res = $p->getProtocoloId();
+                $p->setFechaInicio(null);
+                $p->setFechaFin(null);
+                $p->setPuntaje(null);
+                $p->setActual("N");
+              };
+
+              $protocoloActual = $repo->findBy(["proyecto" => $proyecto_id], ["orden" => "ASC"])[0];
+              $protocoloActual->setActual("S");
+              // dd($protocoloActual);
+              $em->flush();
+              $res = "El proyecto se ha reiniciado con exito.";
               break;
 
             case 'r_protocolo':
               # Idem anterior pero solo con el protocolo con error
+              $proyecto_id = $paramFetcher->get('proyecto')['proyecto_id'];
+              $repo = $em->getRepository("App:Protocolo");
+
+              $p = $repo->findOneBy(["proyecto" => $proyecto_id, "error" => "S"]);
+              // $res = $p->getProtocoloId();
+              $p->setFechaInicio(null);
+              $p->setFechaFin(null);
+              $p->setPuntaje(null);
+
+              $em->flush();
+              $res = "El protocolo se ha reiniciado con exito.";
               break;
 
             case 'cancelar':
@@ -182,8 +206,7 @@ class ProyectoController extends FOSRestController
 
 
           $response = [ 'code'=>200,
-                        'data'=>$res,
-                        'msj'=>$decision];
+                        'data'=>$res];
           return new Response($serializer->serialize($response, "json"));
       } catch (\Exception $e) {
           $response = ['code'=>500,

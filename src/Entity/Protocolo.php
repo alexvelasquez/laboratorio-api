@@ -210,18 +210,5 @@ class Protocolo
 
         return $this;
     }
-    public function getEjecutable(): ?string
-    {
-        return $this->ejecutable;
-    }
-
-    public function setEjecutable(?string $ejecutable): self
-    {
-        $this->ejecutable = $ejecutable;
-        return $this;
-    }
-
-
-
 
 }
