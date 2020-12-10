@@ -21,7 +21,7 @@ security:
                 require_previous_session: false
 
         api:
-            pattern: ^/api(?!/doc|/register$)
+            pattern: ^/api(?!/doc|/register|/login_bonita$)
             stateless: true
             anonymous: false
             provider: api_user_provider
@@ -31,5 +31,6 @@ security:
 
     access_control:
         - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/login_bonita, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
