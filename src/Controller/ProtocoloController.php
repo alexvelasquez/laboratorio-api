@@ -214,12 +214,12 @@ class ProtocoloController extends FOSRestController
       }
       else{
         $bonita->setVariableCase($caso,'protocolo','','java.lang.String');
-      }
+      };
 
       $actividad= $bonita->getActivityCurrent($caso);
       // dd($actividad);
       $bonita->executeActivity($actividad->id);
-      return 'Ejecutado'
+      return 'Ejecutado';
     }
 
 

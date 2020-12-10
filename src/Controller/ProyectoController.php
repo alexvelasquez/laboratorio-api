@@ -95,16 +95,6 @@ class ProyectoController extends FOSRestController
           $procotolo->setActual('S');
           $em->flush();
 
-          /** BonitaService **/
-          $bonita->loginService($this->getUser()->getUsername());//me logeo en bonita;
-          $caso = $bonita->createCase('Aprobacion de un medicamento');
-          // $bonita->setVariableCase($caso->id,'protocolo',$serializer->serialize($protocolo, "json"));
-
-          // $actividad = $bonita->getActivityCurrent($caso->id);
-          // if(!empty($actividad)){
-          //   $bonita->executeActivity($actividad[0]->id);//ejecuto la actividad
-          // }
-
           $response = [ 'code'=>200,
                         'data'=>$proyecto];
           return new Response($serializer->serialize($response, "json"));
@@ -117,10 +107,7 @@ class ProyectoController extends FOSRestController
 
 
     /**
-     * @Rest\Post("/configurarProyecto/{proyecto}", name="nuevo")
-     * @Rest\RequestParam(name="nombre",nullable=false)
-     * @Rest\RequestParam(name="fecha_fin",nullable=true)
-     * @Rest\RequestParam(name="protocolos",nullable=false)
+     * @Rest\Post("/configurarProyecto/{proyecto}", name="configurar")
      * @SWG\Response(response=201,description="User was successfully registered")
      * @SWG\Response(response=500,description="User was not successfully registered")
      * @SWG\Parameter(name="_protocolo",in="body",type="string",description="protocolo",schema={})
@@ -277,7 +264,7 @@ class ProyectoController extends FOSRestController
     }
 
 
-    setProtocoloBonita($bonita,$protocolo,$restart=false){
+    public function setProtocoloBonita($bonita,$protocolo,$restart=false){
       $caso = $protocolo->getProyecto()->getCasoId();
       if($restart){
         $bonita->setVariableCase($caso,'protocolo','','java.lang.String');
