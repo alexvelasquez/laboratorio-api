@@ -158,7 +158,7 @@ class ProtocoloController extends FOSRestController
         $protocolo->setPuntaje($puntaje);
         $protocolo->setFechaInicio(new \DateTime());
         $protocolo->setFechaFin(new \DateTime());
-        
+
         if ($puntaje < 6) {
           # code...
           $protocolo->setActual('N');

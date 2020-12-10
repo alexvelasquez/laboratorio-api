@@ -74,6 +74,16 @@ class Proyecto
         return $this->proyectoId;
     }
 
+
+    public function getCasoId(): ?String
+    {
+        return $this->casoId;
+    }
+    public function setCasoId(): ?String
+    {
+        return $this->casoId;
+    }
+
     public function getNombre(): ?string
     {
         return $this->nombre;

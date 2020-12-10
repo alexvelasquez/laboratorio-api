@@ -116,6 +116,7 @@ class ProyectoController extends FOSRestController
     public function configurarProyecto(Proyecto $proyecto, BonitaService $bonita)
     {
       try {
+    
         $serializer = $this->get('jms_serializer');
         $em = $this->getDoctrine()->getManager();
         $protocolo = $em->getRepository('App:Protocolo')->findOneBy(['proyecto'=>$proyecto,'fechaInicio'=>NULL,'puntaje'=>NULL],['orden'=>'ASC']);
