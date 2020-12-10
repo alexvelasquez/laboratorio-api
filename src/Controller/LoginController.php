@@ -44,7 +44,7 @@ class LoginController extends FOSRestController
      * @SWG\Parameter(name="_password",in="body",type="string",description="The password",schema={})
      * @SWG\Tag(name="User")
      */
-    public function loginBonita(BonitaService $bonita) {
+    public function loginBonita(Request $request,BonitaService $bonita) {
       $serializer = $this->get('jms_serializer');
       $username = $request->request->get('_username');
       $password = $request->request->get('_password');
