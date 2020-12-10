@@ -157,7 +157,7 @@ class ProyectoController extends FOSRestController
      * @SWG\Parameter(name="_protocolo",in="body",type="string",description="protocolo",schema={})
      * @SWG\Tag(name="Proyecto")
      */
-    public function efectuarCambios(ParamFetcher $paramFetcher) {
+    public function efectuarCambios(ParamFetcher $paramFetcher, BonitaService $bonita) {
       try {
           $serializer = $this->get('jms_serializer');
           $em = $this->getDoctrine()->getManager();
@@ -182,7 +182,12 @@ class ProyectoController extends FOSRestController
               if (!empty($siguiente)) {
                 # code...
                 $siguiente->setActual("S");
+                $this->setProtocoloBonita($bonita,$siguiente);
               }
+              else{
+                $this->setProtocoloBonita($bonita,$siguiente,true);
+              }
+              /** configuracion bonita **/
 
               $em->flush();
               $res = "Se ha omitido el error.";
@@ -204,10 +209,16 @@ class ProyectoController extends FOSRestController
                 $p->setActual("N");
               };
 
-              $protocoloActual = $repo->findBy(["proyecto" => $proyecto_id], ["orden" => "ASC"])[0];
-              $protocoloActual->setActual("S");
-              // dd($protocoloActual);
               $em->flush();
+              $proyecto = $em->getRepository('App:Proyecto')->find($proyecto_id);
+              $protocoloActual = $repo->findBy(['proyecto'=>$proyecto,'fechaInicio'=>NULL,'puntaje'=>NULL], ["orden" => "ASC"])[0];
+              $protocoloActual->setActual("S");
+              /** bonita **/
+              $bonita->setVariableCase($caso,'continuar','S','java.lang.String');
+              $this->setProtocoloBonita($bonita,$protocoloActual);
+              $em->flush();
+
+              // dd($protocoloActual);
               $res = "El proyecto se ha reiniciado con exito.";
               break;
 
@@ -223,6 +234,9 @@ class ProyectoController extends FOSRestController
               $p->setPuntaje(null);
 
               $em->flush();
+              /** BONITA **/
+              $bonita->setVariableCase($caso,'continuar','S','java.lang.String');
+              $this->setProtocoloBonita($bonita,$p);
               $res = "El protocolo se ha reiniciado con exito.";
               break;
 
@@ -260,6 +274,20 @@ class ProyectoController extends FOSRestController
                        'message'=>$e->getMessage()];
           return new Response($serializer->serialize($response, "json"));
       }
+    }
+
+
+    setProtocoloBonita($bonita,$protocolo,$restart=false){
+      $caso = $protocolo->getProyecto()->getCasoId();
+      if($restart){
+        $bonita->setVariableCase($caso,'protocolo','','java.lang.String');
+      }
+      else{
+        $dataProtocolo = json_encode(['id_protocolo'=>$protocolo->getProtocoloId(),'es_local'=>$protocolo->getEsLocal()]);
+        $bonita->setVariableCase($caso,'protocolo',$dataProtocolo,'java.lang.String');
+      }
+      $actividad= $bonita->getActivityCurrent($caso);
+      $bonita->executeActivity($actividad->id);
     }
 
 }

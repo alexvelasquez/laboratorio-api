@@ -46,61 +46,15 @@ class LoginController extends FOSRestController
      */
     public function loginBonita(BonitaService $bonita) {
       $serializer = $this->get('jms_serializer');
-      $bonita->loginService('jefe.proyecto');
+      $username = $request->request->get('_username');
+      $password = $request->request->get('_password');
+      $bonita->loginService($username,$password);
       $caso = $bonita->createCase('Aprobacion de un medicamento');
-      $caso = '6008';
-      // $bonita->deleteCase($caso);
-      // dd('BORRADO');
-      // $this->jefe($caso,$bonita);
-      //$this->responsable($caso,$bonita);
-      $this->tomarDecision($caso,$bonita);
-      //
-
-      // $bonita->setVariableCase($caso->id,'protocolo',$serializer->serialize($protocolo, "json"));
       $response = [ 'code'=>200,
                     'data'=>'Logueado'];
       return new JsonResponse($response);
     }
 
-    public function jefe($caso,$bonita)
-    {
-      $bonita->loginService('jefe.proyecto');
-      $dataProtocolo = json_encode(['id_protocolo'=>'2','es_local'=>'S']);
-      $bonita->setVariableCase($caso,'protocolo',$dataProtocolo,'java.lang.String');
-      $actividad= $bonita->getActivityCurrent($caso);
-      // dd($actividad);
-      $bonita->executeActivity($actividad->id);
-      dd('FINALIZADO');
-    }
-
-    public function responsable($caso,$bonita)
-    {
-      $bonita->loginService('fatima.zarate');
-      $bonita->setVariableCase($caso,'protocolo','','java.lang.String');
-      $bonita->setVariableCase($caso,'resultado',5,'java.lang.Integer');
-      $actividad= $bonita->getActivityCurrent($caso);
-      // dd($actividad);
-      $bonita->executeActivity($actividad->id);
-      // $bonita->finishActivity($actividad->id);
-      dd('FINALIZADO');
-    }
-
-    public function tomarDecision($caso,$bonita){
-      $bonita->loginService('jefe.proyecto');
-      // EN CASO DE QUE NO
-      $bonita->setVariableCase($caso,'continuar','N','java.lang.String');
-      //EN CASO DE QUE SI
-      // $bonita->setVariableCase($caso,'continuar','S','java.lang.String');
-      // //busco el siguiente protocolo, si existe:
-      // $dataProtocolo = json_encode(['id_protocolo'=>'2','es_local'=>'S']);
-      // $bonita->setVariableCase($caso,'protocolo',$dataProtocolo,'java.lang.String');
-      // //SINO EXISTE
-      // $bonita->setVariableCase($caso,'protocolo','','java.lang.String');
-
-      $actividad= $bonita->getActivityCurrent($caso);
-      $bonita->executeActivity($actividad->id);
-      dd('DECIDIDO');
-    }
     /**
      * @Rest\Post("/register", name="user_register")
      *
