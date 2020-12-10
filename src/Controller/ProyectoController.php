@@ -136,7 +136,20 @@ class ProyectoController extends FOSRestController
             
             case 'continuar':
               # Si continua, da por finalizado el protocolo. Y setea el siguiente como el actual
+              $proyecto_id = $paramFetcher->get('proyecto')['proyecto_id'];
+              $repo = $em->getRepository("App:Protocolo");
 
+              $actual = $repo->findOneBy(["proyecto" => $proyecto_id, "actual" => "S"], []);
+              $actual->setActual("N");
+
+              $siguiente = $repo->findOneBy(["proyecto" => $proyecto_id, "fechaInicio" => null, "puntaje" => null ], ["orden" => "ASC"]);
+              if (!empty($siguiente)) {
+                # code...
+                $siguiente->setActual("S");
+              }
+              
+              $em->flush();
+              $res = "Se ha omitido el error.";
             break;
             
             case 'r_proyecto':
