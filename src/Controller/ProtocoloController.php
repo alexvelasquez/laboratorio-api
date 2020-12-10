@@ -190,7 +190,6 @@ class ProtocoloController extends FOSRestController
 
     public function ejecutarProtocoloBonita($bonita,$protocolo)
     {
-      if(empty())
       $bonita->setVariableCase($caso,'protocolo','','java.lang.String');
       $bonita->setVariableCase($caso,'resultado',5,'java.lang.Integer');
       $actividad= $bonita->getActivityCurrent($caso);

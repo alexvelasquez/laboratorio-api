@@ -189,7 +189,6 @@ class Protocolo
     public function setError(string $error): self
     {
         $this->error = $error;
-
         return $this;
     }
 
