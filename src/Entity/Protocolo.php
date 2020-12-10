@@ -64,6 +64,13 @@ class Protocolo
     private $actual;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="error", type="string", length=1, nullable=true)
+     */
+    private $error;
+
+    /**
      * @var int|null
      *
      * @ORM\Column(name="puntaje", type="integer", nullable=true)
@@ -90,7 +97,6 @@ class Protocolo
      */
     private $proyecto;
 
-    private $ejecutable;
 
     public function __construct($nombre,$local)
     {
@@ -171,6 +177,18 @@ class Protocolo
     public function setActual(string $actual): self
     {
         $this->actual = $actual;
+
+        return $this;
+    }
+
+    public function getError(): ?string
+    {
+        return $this->error;
+    }
+
+    public function setError(string $error): self
+    {
+        $this->error = $error;
 
         return $this;
     }

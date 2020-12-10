@@ -74,7 +74,10 @@ class ProyectoController extends FOSRestController
           $nombre = $paramFetcher->get('nombre');
           $protocolos = $paramFetcher->get('protocolos');
           $fechaFin = !empty($paramFetcher->get('fecha_fin')) ? new \DateTime($paramFetcher->get('fecha_fin')) : NULL;
-          $proyecto = new Proyecto($nombre,$responsable,$fechaFin);
+
+          /** Creo el caso de bonita **/
+          $caso = $bonita->createCase('Aprobacion de un medicamento');
+          $proyecto = new Proyecto($nombre,$responsable,$fechaFin,$caso->id);
           $em->persist($proyecto);
           /** seteo los protocolos para con el proyecto creado **/
           foreach ($protocolos as $value) {
@@ -87,6 +90,7 @@ class ProyectoController extends FOSRestController
             // $em->getRepository("App:Proyecto")->configurarEjecucion($protocolosProyecto,$value);
           }
           $em->flush();
+          /** obtengo el primero a jecutar y le seteo el estado **/
           $procotolo = $em->getRepository("App:Protocolo")->findBy([],['orden'=>'ASC'])[0];
           $procotolo->setActual('S');
           $em->flush();
@@ -95,7 +99,7 @@ class ProyectoController extends FOSRestController
           $bonita->loginService($this->getUser()->getUsername());//me logeo en bonita;
           $caso = $bonita->createCase('Aprobacion de un medicamento');
           // $bonita->setVariableCase($caso->id,'protocolo',$serializer->serialize($protocolo, "json"));
-          
+
           // $actividad = $bonita->getActivityCurrent($caso->id);
           // if(!empty($actividad)){
           //   $bonita->executeActivity($actividad[0]->id);//ejecuto la actividad
@@ -113,15 +117,17 @@ class ProyectoController extends FOSRestController
 
 
     /**
-     * @Rest\Post("/efectuarcambios", name="efectuarcambios")
-     * @Rest\RequestParam(name="proyecto",nullable=false)
-     * @Rest\RequestParam(name="decision",nullable=false)
-     * @SWG\Response(response=201,description="Los cambios se han realizado con exito")
-     * @SWG\Response(response=500,description="Ha ocurrido un error al intentar realizar los cambios")
+     * @Rest\Post("/configurarProyecto/{proyecto}", name="nuevo")
+     * @Rest\RequestParam(name="nombre",nullable=false)
+     * @Rest\RequestParam(name="fecha_fin",nullable=true)
+     * @Rest\RequestParam(name="protocolos",nullable=false)
+     * @SWG\Response(response=201,description="User was successfully registered")
+     * @SWG\Response(response=500,description="User was not successfully registered")
      * @SWG\Parameter(name="_protocolo",in="body",type="string",description="protocolo",schema={})
      * @SWG\Tag(name="Proyecto")
      */
-    public function efectuarCambios(ParamFetcher $paramFetcher) {
+    public function (Proyecto $proyecto, BonitaService $bonita)
+    {
       try {
           $serializer = $this->get('jms_serializer');
           $em = $this->getDoctrine()->getManager();
@@ -222,10 +228,11 @@ class ProyectoController extends FOSRestController
                         'data'=>$res];
           return new Response($serializer->serialize($response, "json"));
       } catch (\Exception $e) {
-          $response = ['code'=>500,
-                       'message'=>$e->getMessage()];
-          return new Response($serializer->serialize($response, "json"));
+        $response = ['code'=>500,
+                     'message'=>$e->getMessage()];
+        return new Response($serializer->serialize($response, "json"));
       }
+
     }
 
 }
