@@ -131,7 +131,7 @@ class ProyectoController extends FOSRestController
       try {
         $serializer = $this->get('jms_serializer');
         $em = $this->getDoctrine()->getManager();
-        $protocolo = $em->getRepository('App:Protocolo')->findOneBy(['proyecto'=>$proyecto,'actual'=>'S']);
+        $protocolo = $em->getRepository('App:Protocolo')->findOneBy(['proyecto'=>$proyecto,'fechaInicio'=>NULL,'puntaje'=>NULL],['orden'=>'ASC']);
         $caso = $proyecto->getCasoId();
         $dataProtocolo = json_encode(['id_protocolo'=>$protocolo->getProtocoloId(),'es_local'=>$protocolo->getEsLocal()]);
         $bonita->setVariableCase($caso,'protocolo',$dataProtocolo,'java.lang.String');
@@ -164,12 +164,12 @@ class ProyectoController extends FOSRestController
 
           $proyecto = $paramFetcher->get('proyecto');
           $decision = $paramFetcher->get('decision');
-          
+
           // $responsable = $em->getRepository("App:Protocolo")->find(["puntaje" => 6]);
           $res = null;
-          
+
           switch ($decision){
-            
+
             case 'continuar':
               # Si continua, da por finalizado el protocolo. Y setea el siguiente como el actual
               $proyecto_id = $paramFetcher->get('proyecto')['proyecto_id'];
@@ -183,11 +183,11 @@ class ProyectoController extends FOSRestController
                 # code...
                 $siguiente->setActual("S");
               }
-              
+
               $em->flush();
               $res = "Se ha omitido el error.";
             break;
-            
+
             case 'r_proyecto':
               # Reinicia todos los protocolos, sus fechas de inicio, puntaje, etc
               $protocolos = $paramFetcher->get('proyecto')['protocolos'];
@@ -229,7 +229,7 @@ class ProyectoController extends FOSRestController
             case 'cancelar':
               # Da por finalizado el protocolo pero con error
               break;
-            
+
             default:
               # Por si acaso
               break;

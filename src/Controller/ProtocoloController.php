@@ -158,7 +158,16 @@ class ProtocoloController extends FOSRestController
         $protocolo->setPuntaje($puntaje);
         $protocolo->setFechaInicio(new \DateTime());
         $protocolo->setFechaFin(new \DateTime());
+        $protocolo->setActual('N');
+
+        $protocoloActual = $em->getRepository('App:Protocolo')->findOneBy(['proyecto'=>$protocolo->getProyecto(),'fechaInicio'=>NULL,'puntaje'=>NULL],['orden'=>'ASC']);
+        if(!empty($protocoloActual)){
+          $protocoloActual->setActual('S');
+        }
+        /** configuracion bonita **/
         $em->flush();
+        $reponse = $this->ejecutarProtocoloBonita($bonita,$puntaje,$protocoloActual);
+
         $response = [ 'code'=>200,
                       'data'=>$protocolo];
         return new Response($serializer->serialize($response, "json"));
@@ -188,13 +197,22 @@ class ProtocoloController extends FOSRestController
     }
 
 
-    public function ejecutarProtocoloBonita($bonita,$protocolo)
+    public function ejecutarProtocoloBonita($bonita,$puntaje,$protocolo)
     {
-      $bonita->setVariableCase($caso,'protocolo','','java.lang.String');
-      $bonita->setVariableCase($caso,'resultado',5,'java.lang.Integer');
+      $caso =$protocolo->getProyecto()->getCasoId();
+      $bonita->setVariableCase($caso,'resultado',$puntaje,'java.lang.Integer');
+      if(!empty($protocolo)){
+        $dataProtocolo = json_encode(['id_protocolo'=>$protocolo->getProtocoloId(),'es_local'=>$protocolo->getEsLocal()]);
+        $bonita->setVariableCase($caso,'protocolo',$dataProtocolo,'java.lang.String');
+      }
+      else{
+        $bonita->setVariableCase($caso,'protocolo','','java.lang.String');
+      }
+
       $actividad= $bonita->getActivityCurrent($caso);
       // dd($actividad);
       $bonita->executeActivity($actividad->id);
+      return 'Ejecutado'
     }
 
 
