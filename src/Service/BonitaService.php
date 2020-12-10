@@ -22,9 +22,9 @@ class BonitaService
       $this->cacheNamespace = $cacheNamespace;
       $this->cache= new FilesystemAdapter();
   }
-  public function loginService($username){
+  public function loginService($username,$password){
     $response = $this->client->request('POST',$this->url('/loginservice'),[
-                'body' => 'username='.$username.'&password=bpm&redirect=false&redirectURL=']);
+                'body' => 'username='.$username.'&password='.$password.'&redirect=false&redirectURL=']);
     $cookie='';
     foreach ($response->getHeaders()['set-cookie'] as $value) {
       $value = explode(";", $value)[0];
