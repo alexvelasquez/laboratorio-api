@@ -111,4 +111,85 @@ class ProyectoController extends FOSRestController
       }
     }
 
+
+    /**
+     * @Rest\Post("/efectuarcambios", name="efectuarcambios")
+     * @Rest\RequestParam(name="proyecto",nullable=false)
+     * @Rest\RequestParam(name="decision",nullable=false)
+     * @SWG\Response(response=201,description="Los cambios se han realizado con exito")
+     * @SWG\Response(response=500,description="Ha ocurrido un error al intentar realizar los cambios")
+     * @SWG\Parameter(name="_protocolo",in="body",type="string",description="protocolo",schema={})
+     * @SWG\Tag(name="Proyecto")
+     */
+    public function efectuarCambios(ParamFetcher $paramFetcher) {
+      try {
+          $serializer = $this->get('jms_serializer');
+          $em = $this->getDoctrine()->getManager();
+
+          $proyecto = $paramFetcher->get('proyecto');
+          $decision = $paramFetcher->get('decision');
+          
+          // $responsable = $em->getRepository("App:Protocolo")->find(["puntaje" => 6]);
+          $res = null;
+
+          switch ($decision){
+            
+            case 'continuar':
+              # Si continua, da por finalizado el protocolo. Y setea el siguiente como el actual
+            break;
+            
+            case 'r_proyecto':
+              # Reinicia todos los protocolos, sus fechas de inicio, puntaje, etc
+              $protocolos = $paramFetcher->get('proyecto')['protocolos'];
+              $repo = $em->getRepository("App:Protocolo");
+
+              foreach ($protocolos as $value) {
+                # code...
+                $res = $repo->findBy($value["protocolo_id"]);
+              }
+              break;
+
+            case 'r_protocolo':
+              # Idem anterior pero solo con el protocolo con error
+              break;
+
+            case 'cancelar':
+              # Da por finalizado el protocolo pero con error
+              break;
+            
+            default:
+              # Por si acaso
+              break;
+          };
+          // $fechaFin = !empty($paramFetcher->get('fecha_fin')) ? new \DateTime($paramFetcher->get('fecha_fin')) : NULL;
+          // $proyecto = new Proyecto($nombre,$responsable,$fechaFin);
+          // $em->persist($proyecto);
+
+          /** seteo los protocolos para con el proyecto creado **/
+          // foreach ($protocolos as $value) {
+          //   $responsable = $em->getRepository("App:User")->find($value['responsable']);
+          //   $protocolo = $em->getRepository("App:Protocolo")->find($value['protocolo_id']);
+          //   $protocolo->setResponsable($responsable);
+          //   $protocolo->setOrden($value['orden']);
+          //   $protocolo->setProyecto($proyecto);
+          //   $protocolo->setActual('N');
+          //   // $em->getRepository("App:Proyecto")->configurarEjecucion($protocolosProyecto,$value);
+          // }
+          // $em->flush();
+          // $procotolo = $em->getRepository("App:Protocolo")->findBy([],['orden'=>'ASC'])[0];
+          // $procotolo->setActual('S');
+          // $em->flush();
+
+
+          $response = [ 'code'=>200,
+                        'data'=>$res,
+                        'msj'=>$decision];
+          return new Response($serializer->serialize($response, "json"));
+      } catch (\Exception $e) {
+          $response = ['code'=>500,
+                       'message'=>$e->getMessage()];
+          return new Response($serializer->serialize($response, "json"));
+      }
+    }
+
 }
