@@ -164,8 +164,7 @@ class ProyectoController extends FOSRestController
 
           $proyecto = $paramFetcher->get('proyecto');
           $decision = $paramFetcher->get('decision');
-          
-          // $responsable = $em->getRepository("App:Protocolo")->find(["puntaje" => 6]);
+
           $res = null;
           
           switch ($decision){
@@ -228,31 +227,29 @@ class ProyectoController extends FOSRestController
 
             case 'cancelar':
               # Da por finalizado el protocolo pero con error
+              $protocolos = $paramFetcher->get('proyecto')['protocolos'];
+              $proyecto_id = $paramFetcher->get('proyecto')['proyecto_id'];
+              $repo = $em->getRepository("App:Protocolo");
+
+              foreach ($protocolos as $value) {
+                # code...
+                $p = $repo->find($value["protocolo_id"]);
+                $p->setActual("N");
+              };
+
+              $repo = $em->getRepository("App:Proyecto");
+              $proyecto = $repo->find($protocolo_id);
+
+              $proyecto->setFechaFin(new \DateTime);
+
+              $em->flush();
+              $res = "El Proyecto se ha cancelado.";
               break;
             
             default:
               # Por si acaso
               break;
           };
-          // $fechaFin = !empty($paramFetcher->get('fecha_fin')) ? new \DateTime($paramFetcher->get('fecha_fin')) : NULL;
-          // $proyecto = new Proyecto($nombre,$responsable,$fechaFin);
-          // $em->persist($proyecto);
-
-          /** seteo los protocolos para con el proyecto creado **/
-          // foreach ($protocolos as $value) {
-          //   $responsable = $em->getRepository("App:User")->find($value['responsable']);
-          //   $protocolo = $em->getRepository("App:Protocolo")->find($value['protocolo_id']);
-          //   $protocolo->setResponsable($responsable);
-          //   $protocolo->setOrden($value['orden']);
-          //   $protocolo->setProyecto($proyecto);
-          //   $protocolo->setActual('N');
-          //   // $em->getRepository("App:Proyecto")->configurarEjecucion($protocolosProyecto,$value);
-          // }
-          // $em->flush();
-          // $procotolo = $em->getRepository("App:Protocolo")->findBy([],['orden'=>'ASC'])[0];
-          // $procotolo->setActual('S');
-          // $em->flush();
-
 
           $response = [ 'code'=>200,
                         'data'=>$res];

@@ -158,6 +158,18 @@ class ProtocoloController extends FOSRestController
         $protocolo->setPuntaje($puntaje);
         $protocolo->setFechaInicio(new \DateTime());
         $protocolo->setFechaFin(new \DateTime());
+        
+        if ($puntaje < 6) {
+          # code...
+          $protocolo->setError("S");
+        } else {
+          $repo = $em->getRepository("App:Protocolo");
+          $siguiente = $repo->findOneBy(["proyecto" => $proyecto_id, "fechaInicio" => null, "puntaje" => null ], ["orden" => "ASC"]);
+          if (!empty($siguiente)) {
+            $siguiente->setActual("S");
+          };
+        };
+
         $em->flush();
         $response = [ 'code'=>200,
                       'data'=>$protocolo];
