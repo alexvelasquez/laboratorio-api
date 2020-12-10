@@ -150,7 +150,7 @@ class ProtocoloController extends FOSRestController
      * @SWG\Parameter(name="_protocolo",in="body",type="string",description="protocolo",schema={})
      * @SWG\Tag(name="Protocolo")
      */
-    public function realizarProtocolo(ParamFetcher $paramFetcher, Protocolo $protocolo) {
+    public function realizarProtocolo(ParamFetcher $paramFetcher, Protocolo $protocolo, BonitaService $bonita) {
       try {
         $serializer = $this->get('jms_serializer');
         $em = $this->getDoctrine()->getManager();
@@ -161,16 +161,20 @@ class ProtocoloController extends FOSRestController
         
         if ($puntaje < 6) {
           # code...
+          $protocolo->setActual('N');
           $protocolo->setError("S");
         } else {
           $repo = $em->getRepository("App:Protocolo");
-          $siguiente = $repo->findOneBy(["proyecto" => $proyecto_id, "fechaInicio" => null, "puntaje" => null ], ["orden" => "ASC"]);
+          $siguiente = $repo->findOneBy(['proyecto'=>$protocolo->getProyecto(),'fechaInicio'=>NULL,'puntaje'=>NULL],['orden'=>'ASC']);
           if (!empty($siguiente)) {
             $siguiente->setActual("S");
           };
         };
 
+        /** configuracion bonita **/
         $em->flush();
+        $reponse = $this->ejecutarProtocoloBonita($bonita,$puntaje,$siguiente);
+
         $response = [ 'code'=>200,
                       'data'=>$protocolo];
         return new Response($serializer->serialize($response, "json"));
@@ -200,13 +204,22 @@ class ProtocoloController extends FOSRestController
     }
 
 
-    public function ejecutarProtocoloBonita($bonita,$protocolo)
+    public function ejecutarProtocoloBonita($bonita,$puntaje,$protocolo)
     {
-      $bonita->setVariableCase($caso,'protocolo','','java.lang.String');
-      $bonita->setVariableCase($caso,'resultado',5,'java.lang.Integer');
+      $caso =$protocolo->getProyecto()->getCasoId();
+      $bonita->setVariableCase($caso,'resultado',$puntaje,'java.lang.Integer');
+      if(!empty($protocolo)){
+        $dataProtocolo = json_encode(['id_protocolo'=>$protocolo->getProtocoloId(),'es_local'=>$protocolo->getEsLocal()]);
+        $bonita->setVariableCase($caso,'protocolo',$dataProtocolo,'java.lang.String');
+      }
+      else{
+        $bonita->setVariableCase($caso,'protocolo','','java.lang.String');
+      }
+
       $actividad= $bonita->getActivityCurrent($caso);
       // dd($actividad);
       $bonita->executeActivity($actividad->id);
+      return 'Ejecutado'
     }
 
 
