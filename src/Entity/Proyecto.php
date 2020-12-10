@@ -24,6 +24,13 @@ class Proyecto
     /**
      * @var string
      *
+     * @ORM\Column(name="caso_id", type="string", length=100, nullable=false)
+     */
+    private $casoId;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="nombre", type="string", length=100, nullable=false)
      */
     private $nombre;
@@ -54,12 +61,12 @@ class Proyecto
 
     private $protocolos;
 
-    public function __construct($nombre,$responsable,$fechaFin)
+    public function __construct($nombre,$responsable,$fechaFin,$caso)
     {
       $this->nombre = $nombre;
       $this->responsable = $responsable;
       $this->fechaInicio = new \DateTime();
-      $this->fechaFin = $fechaFin;
+      $this->casoId = $caso;
     }
 
     public function getProyectoId(): ?int
@@ -123,7 +130,6 @@ class Proyecto
     public function setProtocolos(?Array $protocolos): self
     {
         $this->protocolos = $protocolos;
-
         return $this;
     }
 
