@@ -163,9 +163,12 @@ class ProyectoController extends FOSRestController
               $proyecto_id = $paramFetcher->get('proyecto')['proyecto_id'];
               $repo = $em->getRepository("App:Protocolo");
 
-              $actual = $repo->findOneBy(["proyecto" => $proyecto_id, "actual" => "S"], []);
+              // Busco el protocolo que tuvo error y lo modifico
+              $actual = $repo->findOneBy(["proyecto" => $proyecto_id, "error" => "S"], []);
               $actual->setActual("N");
+              $actual->setError("N");
 
+              //  Busco el protocolo que deberia ir a continuacion
               $siguiente = $repo->findOneBy(["proyecto" => $proyecto_id, "fechaInicio" => null, "puntaje" => null ], ["orden" => "ASC"]);
               if (!empty($siguiente)) {
                 # code...
@@ -188,16 +191,18 @@ class ProyectoController extends FOSRestController
               $repo = $em->getRepository("App:Protocolo");
 
               foreach ($protocolos as $value) {
-                # code...
+                # Recupero uno por uno los protocolos de la bd y los modifico
                 $p = $repo->find($value["protocolo_id"]);
                 // $res = $p->getProtocoloId();
                 $p->setFechaInicio(null);
                 $p->setFechaFin(null);
                 $p->setPuntaje(null);
                 $p->setActual("N");
+                $p->setError("N");
               };
 
               $em->flush();
+              // Recupero el primer protocolo a ejecutar de nuevo y lo habilito
               $proyecto = $em->getRepository('App:Proyecto')->find($proyecto_id);
               $protocoloActual = $repo->findBy(['proyecto'=>$proyecto,'fechaInicio'=>NULL,'puntaje'=>NULL], ["orden" => "ASC"])[0];
               $protocoloActual->setActual("S");
@@ -215,11 +220,14 @@ class ProyectoController extends FOSRestController
               $proyecto_id = $paramFetcher->get('proyecto')['proyecto_id'];
               $repo = $em->getRepository("App:Protocolo");
 
+              // Recupero el protocolo que dio mal y lo reinicio
               $p = $repo->findOneBy(["proyecto" => $proyecto_id, "error" => "S"]);
               // $res = $p->getProtocoloId();
               $p->setFechaInicio(null);
               $p->setFechaFin(null);
               $p->setPuntaje(null);
+              $p->setError("N");
+              $p->setActual("S");
 
               $em->flush();
               /** BONITA **/
@@ -234,6 +242,7 @@ class ProyectoController extends FOSRestController
               $proyecto_id = $paramFetcher->get('proyecto')['proyecto_id'];
               $repo = $em->getRepository("App:Protocolo");
 
+              // Si lo cancela, el protocolo igualmente queda seteado con valor S en el campo Error
               foreach ($protocolos as $value) {
                 # code...
                 $p = $repo->find($value["protocolo_id"]);
