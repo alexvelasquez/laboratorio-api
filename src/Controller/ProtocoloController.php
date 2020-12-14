@@ -89,11 +89,13 @@ class ProtocoloController extends FOSRestController
 
        $serializer = $this->get('jms_serializer');
        $em = $this->getDoctrine()->getManager();
-       $protocolos = $em->getRepository("App:Protocolo")->findBy(["responsable"=>$responsable, "fechaInicio" => NULL]);
-       foreach ($protocolos as $value) {
-         $protocolosProyecto = $em->getRepository("App:Proyecto")->protocolosProyecto($value->getProyecto());
-         $em->getRepository("App:Proyecto")->configurarEjecucion($protocolosProyecto,$value);
-       }
+
+       $protocolos = $em->getRepository("App:Protocolo")->findBy(["responsable"=>$responsable, "fechaInicio" => NULL, "esLocal" => "S", "actual" => "S"]); //Todos los protocolos que el responsable tiene asignados
+      //  foreach ($protocolos as $value) {
+      //   //   Por cada protocolo, recupero el proyecto al que pertenece
+      //    $protocolosProyecto = $em->getRepository("App:Proyecto")->protocolosProyecto($value->getProyecto());
+      //    $em->getRepository("App:Proyecto")->configurarEjecucion($protocolosProyecto,$value);
+      //  }
        $response = [ 'code'=>200,
                      'data'=>$protocolos];
        return new Response($serializer->serialize($response, "json"));
