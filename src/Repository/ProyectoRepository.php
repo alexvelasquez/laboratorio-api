@@ -27,6 +27,8 @@ class ProyectoRepository extends EntityRepository
   }
 
   public function configurarEjecucion($protocolos,&$protocolo){
+
+    // Hay que cambiar algo aca porque el seteo de actual=S deberia ser cuando se crea
     $protocoloAnterior = null;
     $protocolo->setActual('N');
     foreach ($protocolos as $value) {
