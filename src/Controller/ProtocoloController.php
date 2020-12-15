@@ -160,14 +160,16 @@ class ProtocoloController extends FOSRestController
         $protocolo->setPuntaje($puntaje);
         $protocolo->setFechaInicio(new \DateTime());
         $protocolo->setFechaFin(new \DateTime());
-
+        $protocolo->setActual('N');
+        $em->flush();
+        
         if ($puntaje < 6) {
-          # code...
-          $protocolo->setActual('N');
+          # Si el puntaje no es suficiente, se setea el actual en N y error en S. No se inicializa el siguiente. Corroborar que se haga si se resuelve la opcion "continuar"
           $protocolo->setError("S");
         } else {
           $repo = $em->getRepository("App:Protocolo");
           $siguiente = $repo->findOneBy(['proyecto'=>$protocolo->getProyecto(),'fechaInicio'=>NULL,'puntaje'=>NULL],['orden'=>'ASC']);
+          // dd($siguiente);
           if (!empty($siguiente)) {
             $siguiente->setActual("S");
           };
@@ -175,7 +177,7 @@ class ProtocoloController extends FOSRestController
 
         /** configuracion bonita **/
         $em->flush();
-        $reponse = $this->ejecutarProtocoloBonita($bonita,$puntaje,$siguiente);
+        // $reponse = $this->ejecutarProtocoloBonita($bonita,$puntaje,$siguiente);
 
         $response = [ 'code'=>200,
                       'data'=>$protocolo];

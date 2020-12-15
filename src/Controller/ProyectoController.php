@@ -86,12 +86,13 @@ class ProyectoController extends FOSRestController
             $protocolo->setResponsable($responsable);
             $protocolo->setOrden($value['orden']);
             $protocolo->setProyecto($proyecto);
-            $protocolo->setActual('N');
+            // $protocolo->setActual('N');
+            // $protocolo->setError('N');
             // $em->getRepository("App:Proyecto")->configurarEjecucion($protocolosProyecto,$value);
           }
           $em->flush();
           /** obtengo el primero a jecutar y le seteo el estado **/
-          $procotolo = $em->getRepository("App:Protocolo")->findBy([],['orden'=>'ASC'])[0];
+          $procotolo = $em->getRepository("App:Protocolo")->findOneBy(['proyecto'=>$proyecto,'fechaInicio'=>NULL,'puntaje'=>NULL],['orden'=>'ASC']);
           $procotolo->setActual('S');
           $em->flush();
 
@@ -119,7 +120,7 @@ class ProyectoController extends FOSRestController
     
         $serializer = $this->get('jms_serializer');
         $em = $this->getDoctrine()->getManager();
-        $protocolo = $em->getRepository('App:Protocolo')->findOneBy(['proyecto'=>$proyecto,'fechaInicio'=>NULL,'puntaje'=>NULL],['orden'=>'ASC']);
+        $protocolo = $em->getRepository('App:Protocolo')->findOneBy(['actual'=> "S"]);
         $caso = $proyecto->getCasoId();
         $dataProtocolo = json_encode(['id_protocolo'=>$protocolo->getProtocoloId(),'es_local'=>$protocolo->getEsLocal()]);
         $bonita->setVariableCase($caso,'protocolo',$dataProtocolo,'java.lang.String');
@@ -165,7 +166,7 @@ class ProyectoController extends FOSRestController
 
               // Busco el protocolo que tuvo error y lo modifico
               $actual = $repo->findOneBy(["proyecto" => $proyecto_id, "error" => "S"], []);
-              $actual->setActual("N");
+              // $actual->setActual("N");
               $actual->setError("N");
 
               //  Busco el protocolo que deberia ir a continuacion
@@ -173,10 +174,10 @@ class ProyectoController extends FOSRestController
               if (!empty($siguiente)) {
                 # code...
                 $siguiente->setActual("S");
-                $this->setProtocoloBonita($bonita,$siguiente);
+                // $this->setProtocoloBonita($bonita,$siguiente);
               }
               else{
-                $this->setProtocoloBonita($bonita,$siguiente,true);
+                // $this->setProtocoloBonita($bonita,$siguiente,true);
               }
               /** configuracion bonita **/
 
@@ -207,8 +208,8 @@ class ProyectoController extends FOSRestController
               $protocoloActual = $repo->findBy(['proyecto'=>$proyecto,'fechaInicio'=>NULL,'puntaje'=>NULL], ["orden" => "ASC"])[0];
               $protocoloActual->setActual("S");
               /** bonita **/
-              $bonita->setVariableCase($caso,'continuar','S','java.lang.String');
-              $this->setProtocoloBonita($bonita,$protocoloActual);
+              // $bonita->setVariableCase($caso,'continuar','S','java.lang.String');
+              // $this->setProtocoloBonita($bonita,$protocoloActual);
               $em->flush();
 
               // dd($protocoloActual);
@@ -231,8 +232,8 @@ class ProyectoController extends FOSRestController
 
               $em->flush();
               /** BONITA **/
-              $bonita->setVariableCase($caso,'continuar','S','java.lang.String');
-              $this->setProtocoloBonita($bonita,$p);
+              // $bonita->setVariableCase($caso,'continuar','S','java.lang.String');
+              // $this->setProtocoloBonita($bonita,$p);
               $res = "El protocolo se ha reiniciado con exito.";
               break;
 
@@ -250,7 +251,7 @@ class ProyectoController extends FOSRestController
               };
 
               $repo = $em->getRepository("App:Proyecto");
-              $proyecto = $repo->find($protocolo_id);
+              $proyecto = $repo->find($proyecto_id);
 
               $proyecto->setFechaFin(new \DateTime);
 

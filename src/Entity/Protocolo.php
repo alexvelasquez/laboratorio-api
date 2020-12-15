@@ -102,6 +102,8 @@ class Protocolo
     {
       $this->nombre = $nombre;
       $this->esLocal = $local;
+      $this->actual = "N";
+      $this->error = "N";
     }
 
     public function getProtocoloId(): ?int

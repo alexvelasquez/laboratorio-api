@@ -49,7 +49,7 @@ class LoginController extends FOSRestController
       $username = $request->request->get('_username');
       $password = $request->request->get('_password');
       $bonita->loginService($username,$password);
-      $caso = $bonita->createCase('Aprobacion de un medicamento');
+    //   $caso = $bonita->createCase('Aprobacion de un medicamento');
       $response = [ 'code'=>200,
                     'data'=>'Logueado'];
       return new JsonResponse($response);
