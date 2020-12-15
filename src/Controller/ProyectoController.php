@@ -175,8 +175,11 @@ class ProyectoController extends FOSRestController
                 # code...
                 $siguiente->setActual("S");
                 // $this->setProtocoloBonita($bonita,$siguiente);
-              }
-              else{
+              } else {
+                // Si no quedan protocolos, finalizo el proyecto
+                $repo = $em->getRepository("App:Proyecto");
+                $proyecto = $repo->find($proyecto_id);
+                $proyecto->setFechaFin(new \DateTime);
                 // $this->setProtocoloBonita($bonita,$siguiente,true);
               }
               /** configuracion bonita **/
