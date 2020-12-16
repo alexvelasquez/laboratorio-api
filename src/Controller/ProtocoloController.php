@@ -7,15 +7,9 @@ use App\Entity\User;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Request\ParamFetcher;
-use FOS\RestBundle\Controller\Annotations\RequestParam;
-use FOS\RestBundle\Controller\Annotations\QueryParam;
-use Symfony\Component\Config\Definition\Exception\Exception;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Nelmio\ApiDocBundle\Annotation\Model;
+use App\Extensions\BonitaUtilitiesTrait as ExtensionsBonitaUtilitiesTrait;
 use Swagger\Annotations as SWG;
 
 use App\Service\BonitaService;
@@ -27,7 +21,7 @@ use App\Service\BonitaService;
  */
 class ProtocoloController extends FOSRestController
 {
-
+  use ExtensionsBonitaUtilitiesTrait;
   /**
    * @Rest\Get("", name="protocolos")
    *
@@ -162,23 +156,20 @@ class ProtocoloController extends FOSRestController
         $protocolo->setFechaFin(new \DateTime());
         $protocolo->setActual('N');
         $em->flush();
-        
+        $siguiente = null;
         if ($puntaje < 6) {
           # Si el puntaje no es suficiente, se setea el actual en N y error en S. No se inicializa el siguiente. Corroborar que se haga si se resuelve la opcion "continuar"
           $protocolo->setError("S");
         } else {
           $repo = $em->getRepository("App:Protocolo");
           $siguiente = $repo->findOneBy(['proyecto'=>$protocolo->getProyecto(),'fechaInicio'=>NULL,'puntaje'=>NULL],['orden'=>'ASC']);
-          // dd($siguiente);
           if (!empty($siguiente)) {
             $siguiente->setActual("S");
           };
         };
-
-        /** configuracion bonita **/
         $em->flush();
-        // $reponse = $this->ejecutarProtocoloBonita($bonita,$puntaje,$siguiente);
-
+        /** configuracion bonita **/
+        $this->setVariablesBonita($bonita,$protocolo->getProyecto(),$siguiente,$puntaje);
         $response = [ 'code'=>200,
                       'data'=>$protocolo];
         return new Response($serializer->serialize($response, "json"));
@@ -198,34 +189,14 @@ class ProtocoloController extends FOSRestController
      */
     public function reestablecerProtocolo(Protocolo $protocolo)
     {
+      $serializer = $this->get('jms_serializer');
       $em = $this->getDoctrine()->getManager();
-      $procotolo->setFechaFin(NULL);
+      $protocolo->setFechaFin(NULL);
       $protocolo->setFechaInicio(NULL);
       $em->flush();
       $response = [ 'code'=>200,
                     'data'=>$protocolo];
       return new Response($serializer->serialize($response, "json"));
     }
-
-
-    public function ejecutarProtocoloBonita($bonita,$puntaje,$protocolo)
-    {
-      $caso =$protocolo->getProyecto()->getCasoId();
-      $bonita->setVariableCase($caso,'resultado',$puntaje,'java.lang.Integer');
-      if(!empty($protocolo)){
-        $dataProtocolo = json_encode(['id_protocolo'=>$protocolo->getProtocoloId(),'es_local'=>$protocolo->getEsLocal()]);
-        $bonita->setVariableCase($caso,'protocolo',$dataProtocolo,'java.lang.String');
-      }
-      else{
-        $bonita->setVariableCase($caso,'protocolo','','java.lang.String');
-      };
-
-      $actividad= $bonita->getActivityCurrent($caso);
-      // dd($actividad);
-      $bonita->executeActivity($actividad->id);
-      return 'Ejecutado';
-    }
-
-
 
 }
