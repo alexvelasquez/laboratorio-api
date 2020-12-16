@@ -14,10 +14,13 @@ trait BonitaUtilitiesTrait
         $bonita->setVariableCase($caso,'protocolo_puntaje',$puntaje,'java.lang.Integer');
       }
       if(!empty($protocolo)){
-        $bonita->setVariableCase($caso,'protocolo_local',$protocolo->getEsLocal(),'java.lang.String');
+        $protocolo = json_encode(['protocolo_id'=>$protocolo->getProtocoloId(),
+                                  'nombre'=>$protocolo->getNombre(),
+                                  'es_local'=>$protocolo->getEsLocal()]);
+        $bonita->setVariableCase($caso,'protocolo',$protocolo,'java.lang.String');
       }
       else{
-        $bonita->setVariableCase($caso,'protocolo_local','null','java.lang.String');
+        $bonita->setVariableCase($caso,'protocolo','null','java.lang.String');
       }
       $actividad= $bonita->getActivityCurrent($caso);
       $bonita->executeActivity($actividad->id);

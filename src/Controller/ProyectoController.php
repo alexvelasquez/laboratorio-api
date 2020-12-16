@@ -122,10 +122,7 @@ class ProyectoController extends FOSRestController
         $serializer = $this->get('jms_serializer');
         $em = $this->getDoctrine()->getManager();
         $protocolo = $em->getRepository('App:Protocolo')->findOneBy(['actual'=> "S"]);
-        $caso = $proyecto->getCasoId();
-        $bonita->setVariableCase($caso,'protocolo_local',$protocolo->getEsLocal(),'java.lang.String');
-        $actividad= $bonita->getActivityCurrent($caso);
-        $bonita->executeActivity($actividad->id);
+        $this->setVariablesBonita($bonita,$proyecto,$protocolo,null,null);
         $response = [ 'code'=>200,
                       'data'=>'Tarea ejecutada'];
         return new Response($serializer->serialize($response, "json"));

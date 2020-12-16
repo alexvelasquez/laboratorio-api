@@ -170,8 +170,8 @@ class ProtocoloController extends FOSRestController
             $repo = $em->getRepository("App:Proyecto");
             $proyecto = $repo->find($proyecto_id);
             $proyecto->setFechaFin(new \DateTime);
-          };
-        };
+          }
+        }
         $em->flush();
         /** configuracion bonita **/
         $this->setVariablesBonita($bonita,$protocolo->getProyecto(),$siguiente,$puntaje);
