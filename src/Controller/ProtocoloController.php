@@ -151,6 +151,7 @@ class ProtocoloController extends FOSRestController
         $serializer = $this->get('jms_serializer');
         $em = $this->getDoctrine()->getManager();
         $puntaje = $paramFetcher->get('puntaje');
+        $proyecto_id = $protocolo->getProyecto()->getProyectoId();
         $protocolo->setPuntaje($puntaje);
         $protocolo->setFechaInicio(new \DateTime());
         $protocolo->setFechaFin(new \DateTime());
@@ -165,6 +166,10 @@ class ProtocoloController extends FOSRestController
           $siguiente = $repo->findOneBy(['proyecto'=>$protocolo->getProyecto(),'fechaInicio'=>NULL,'puntaje'=>NULL],['orden'=>'ASC']);
           if (!empty($siguiente)) {
             $siguiente->setActual("S");
+          } else {
+            $repo = $em->getRepository("App:Proyecto");
+            $proyecto = $repo->find($proyecto_id);
+            $proyecto->setFechaFin(new \DateTime);
           };
         };
         $em->flush();
