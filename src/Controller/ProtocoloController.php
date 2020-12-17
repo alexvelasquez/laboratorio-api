@@ -69,6 +69,53 @@ class ProtocoloController extends FOSRestController
       $protocolos = $em->getRepository("App:ActividadProtocolo")->findBy(['protocolo' => $protocolo]);
       return new Response($serializer->serialize($protocolos, "json"));
     }
+   /**
+    * @Rest\Put("/actualizarRemotos", name="actividades_protocolos")
+    *
+    * @SWG\Response(response=201,description="User was successfully registered")
+    * @SWG\Response(response=500,description="User was not successfully registered")
+    * @SWG\Parameter(name="_protocolo",in="body",type="string",description="protocolo",schema={})
+    * @SWG\Tag(name="Protocolo")
+    */
+    public function actualizarRemotos(Protocolo $protocolo, CloudService $cloud)
+    {
+      try{
+        $serializer = $this->get('jms_serializer');
+        $em = $this->getDoctrine()->getManager();
+        //buscar todos los protocolos remotos actuales
+        $remotos = $em->getRepository("App:Protocolo")->findBy(["fechaInicio" => NULL,"puntaje" => NULL,"esLocal"=>'N',"actual"=>'S']);
+        foreach ($remotos as $value) {
+            //pregunto por el estado de cada protocolo
+            $response = $cloud->estado($value->getProtocoloId());
+            if($response->status == 'Protocolo finalizado' && $response->protocolo->puntaje >= 6){ //aprobo el protocolo
+              $value->setFechaInicio($response->protocolo->fecha_inicio);
+              $value->setFechaFin($response->protocolo->fecha_fin);
+              $value->setPuntaje($response->protocolo->puntaje);
+              $value->setActual('N');
+              $em->flush();
+              /** busco el protocolo actual y lo seteo en S */
+              $protocolo = $em->getRepository("App:Protocolo")->findOneBy(['proyecto'=>$value->getProyecto(),'fechaInicio'=>NULL,'puntaje'=>NULL],['orden'=>'ASC']);
+              $protocolo->setActual('S');
+              $em->flush();
+            }
+            elseif($response->status == 'Protocolo en ejecucion' && $response->protocolo->puntaje < 6){
+              $value->setFechaInicio($response->protocolo->fecha_inicio);
+              $value->setFechaFin($response->protocolo->fecha_fin);
+              $value->setPuntaje($response->protocolo->puntaje);
+              $value->setActual('N');
+              $value->setError('S');
+              $em->flush();
+            }
+        }
+        $response = [ 'code'=>200,
+        'data'=>'Protocolo actualizados'];
+        return new Response($serializer->serialize($response, "json"));
+        } catch (\Exception $e) {
+        $response = ['code'=>500,
+                'message'=>$e->getMessage()];
+        return new Response($serializer->serialize($response, "json"));
+        }
+    }
 
 
    /**
@@ -84,32 +131,6 @@ class ProtocoloController extends FOSRestController
       $response = $cloud->estado(1);
       $serializer = $this->get('jms_serializer');
       $em = $this->getDoctrine()->getManager();
-      //buscar todos los protocolos remotos actuales
-      $remotos = $em->getRepository("App:Protocolo")->findBy(["fechaInicio" => NULL,"esLocal"=>'N',"actual"=>'S']);
-      foreach ($remotos as $value) {
-        //pregunto por el estado de cada protocolo
-        $response = $cloud->estado($value->getProtocoloId());
-        if($response->status == 'Protocolo finalizado' && $response->protocolo->puntaje >= 6){ //aprobo el protocolo
-          $value->setFechaInicio($response->protocolo->fecha_inicio);
-          $value->setFechaFin($response->protocolo->fecha_fin);
-          $value->setPuntaje($response->protocolo->puntaje);
-          $value->setActual('N');
-          $em->flush();
-          /** busco el protocolo actual y lo seteo en S */
-          $protocolo = $em->getRepository("App:Protocolo")->findOneBy(['proyecto'=>$value->getProyecto(),'fechaInicio'=>NULL,'puntaje'=>NULL],['orden'=>'ASC']);
-          $protocolo->setActual('S');
-          $em->flush();
-        }
-        elseif($response->status == 'Protocolo en ejecucion' && $response->protocolo->puntaje < 6){
-          $value->setFechaInicio($response->protocolo->fecha_inicio);
-          $value->setFechaFin($response->protocolo->fecha_fin);
-          $value->setPuntaje($response->protocolo->puntaje);
-          $value->setActual('N');
-          $value->setError('S');
-          $em->flush();
-        }
-
-      }
       $protocolos = $em->getRepository("App:Protocolo")->findBy(["responsable"=>$responsable, "fechaInicio" => NULL, "esLocal" => "S", "actual" => "S"]); //Todos los protocolos que el responsable tiene asignados
       //  foreach ($protocolos as $value) {
       //   //   Por cada protocolo, recupero el proyecto al que pertenece
@@ -122,7 +143,6 @@ class ProtocoloController extends FOSRestController
      } catch (\Exception $e) {
          $response = ['code'=>500,
                       'message'=>$e->getMessage()];
-          dd($response);
          return new Response($serializer->serialize($response, "json"));
      }
    }

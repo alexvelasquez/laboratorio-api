@@ -51,6 +51,15 @@ class CloudService
     ]);
     return json_decode($response->getContent());
   }
+
+  public function reestablecer($protocolo){
+    $token = $this->getToken();
+    $response = $this->client->request('GET',$this->url('/protocolo/reestablecer/'.$protocolo),
+    [ 'headers'=> ['Content-Type'=>'application/json',
+                  'Authorization'=>'Bearer '.$token],
+    ]);
+    return json_decode($response->getContent());
+  }
   
   public function url($link)
   {

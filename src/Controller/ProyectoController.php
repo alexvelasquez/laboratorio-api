@@ -147,7 +147,7 @@ class ProyectoController extends FOSRestController
      * @SWG\Parameter(name="_protocolo",in="body",type="string",description="protocolo",schema={})
      * @SWG\Tag(name="Proyecto")
      */
-    public function efectuarCambios(ParamFetcher $paramFetcher, BonitaService $bonita) {
+    public function efectuarCambios(ParamFetcher $paramFetcher, BonitaService $bonita, CloudService $cloud) {
       try {
           $serializer = $this->get('jms_serializer');
           $em = $this->getDoctrine()->getManager();
@@ -175,7 +175,6 @@ class ProyectoController extends FOSRestController
                 $siguiente->setActual("S");
               }
               $this->setVariablesBonita($bonita,$proyecto,$siguiente,null,'S'); //'S' para CONTINUAR
-            
               /** configuracion bonita **/
 
               $em->flush();
@@ -190,6 +189,9 @@ class ProyectoController extends FOSRestController
               foreach ($protocolos as $value) {
                 # Recupero uno por uno los protocolos de la bd y los modifico
                 $p = $repo->find($value["protocolo_id"]);
+                if($p->getEsLocal() == 'N'){
+                  $cloud->reestablecer($p->getProtocoloId()); //reestablecer protocolos remotos en cloud
+                }
                 // $res = $p->getProtocoloId();
                 $p->setFechaInicio(null);
                 $p->setFechaFin(null);
@@ -224,6 +226,9 @@ class ProyectoController extends FOSRestController
               $p->setError("N");
               $p->setActual("S");
 
+              if($p->getEsLocal() == 'N'){
+                $cloud->reestablecer($p->getProtocoloId());//reseto en cloud
+              }
               $em->flush();
               /** BONITA **/
               $this->setVariablesBonita($bonita,$proyecto, $p,null,'S');
