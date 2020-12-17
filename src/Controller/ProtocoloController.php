@@ -69,7 +69,8 @@ class ProtocoloController extends FOSRestController
       $protocolos = $em->getRepository("App:ActividadProtocolo")->findBy(['protocolo' => $protocolo]);
       return new Response($serializer->serialize($protocolos, "json"));
     }
-   /**
+
+    /**
     * @Rest\Put("/actualizarRemotos", name="actividades_protocolos")
     *
     * @SWG\Response(response=201,description="User was successfully registered")
@@ -77,7 +78,7 @@ class ProtocoloController extends FOSRestController
     * @SWG\Parameter(name="_protocolo",in="body",type="string",description="protocolo",schema={})
     * @SWG\Tag(name="Protocolo")
     */
-    public function actualizarRemotos(Protocolo $protocolo, CloudService $cloud)
+    public function actualizarRemotos(CloudService $cloud)
     {
       try{
         $serializer = $this->get('jms_serializer');
@@ -88,8 +89,8 @@ class ProtocoloController extends FOSRestController
             //pregunto por el estado de cada protocolo
             $response = $cloud->estado($value->getProtocoloId());
             if($response->status == 'Protocolo finalizado' && $response->protocolo->puntaje >= 6){ //aprobo el protocolo
-              $value->setFechaInicio($response->protocolo->fecha_inicio);
-              $value->setFechaFin($response->protocolo->fecha_fin);
+              $value->setFechaInicio(new \Datetime($response->protocolo->fecha_inicio));
+              $value->setFechaFin(new \Datetime($response->protocolo->fecha_fin));
               $value->setPuntaje($response->protocolo->puntaje);
               $value->setActual('N');
               $em->flush();
@@ -98,9 +99,9 @@ class ProtocoloController extends FOSRestController
               $protocolo->setActual('S');
               $em->flush();
             }
-            elseif($response->status == 'Protocolo en ejecucion' && $response->protocolo->puntaje < 6){
-              $value->setFechaInicio($response->protocolo->fecha_inicio);
-              $value->setFechaFin($response->protocolo->fecha_fin);
+            elseif($response->status == 'Protocolo finalizado' && $response->protocolo->puntaje < 6){
+              $value->setFechaInicio(new \Datetime($response->protocolo->fecha_inicio));
+              $value->setFechaFin(new \Datetime($response->protocolo->fecha_fin));
               $value->setPuntaje($response->protocolo->puntaje);
               $value->setActual('N');
               $value->setError('S');
