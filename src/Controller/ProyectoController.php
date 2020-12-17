@@ -17,6 +17,7 @@ use Nelmio\ApiDocBundle\Annotation\Model;
 use Swagger\Annotations as SWG;
 use App\Service\BonitaService;
 use App\Extensions\BonitaUtilitiesTrait as ExtensionsBonitaUtilitiesTrait;
+use App\Service\CloudService;
 
 /**
  * Class ApiController
@@ -67,7 +68,7 @@ class ProyectoController extends FOSRestController
      * @SWG\Parameter(name="_protocolo",in="body",type="string",description="protocolo",schema={})
      * @SWG\Tag(name="Proyecto")
      */
-    public function nuevoProyecto(ParamFetcher $paramFetcher, BonitaService $bonita) {
+    public function nuevoProyecto(ParamFetcher $paramFetcher, BonitaService $bonita,  CloudService $cloud) {
       try {
           $serializer = $this->get('jms_serializer');
           $em = $this->getDoctrine()->getManager();
@@ -87,13 +88,16 @@ class ProyectoController extends FOSRestController
             $protocolo->setResponsable($responsable);
             $protocolo->setOrden($value['orden']);
             $protocolo->setProyecto($proyecto);
+            if($protocolo->getEsLocal() == 'N' ){
+              $cloud->altaProtocolo($protocolo); //alta de protocolo en cloud
+            }
             // $protocolo->setActual('N');
             // $protocolo->setError('N');
             // $em->getRepository("App:Proyecto")->configurarEjecucion($protocolosProyecto,$value);
           }
           $em->flush();
           /** obtengo el primero a jecutar y le seteo el estado **/
-          $procotolo = $em->getRepository("App:Protocolo")->findOneBy(['proyecto'=>$proyecto,'fechaInicio'=>NULL,'puntaje'=>NULL, "esLocal" => "S"],['orden'=>'ASC']);
+          $procotolo = $em->getRepository("App:Protocolo")->findOneBy(['proyecto'=>$proyecto,'fechaInicio'=>NULL,'puntaje'=>NULL],['orden'=>'ASC']);
           $procotolo->setActual('S');
           $em->flush();
 
@@ -195,7 +199,7 @@ class ProyectoController extends FOSRestController
               };
 
               $em->flush();
-              // Recupero el primer protocolo a ejecutar de nuevo y lo habilito
+              // Recupero el primer protocolo a ejecutar de nuevo y lo habilit
               
               $protocoloActual = $repo->findBy(['proyecto'=>$proyecto,'fechaInicio'=>NULL,'puntaje'=>NULL], ["orden" => "ASC"])[0];
               $protocoloActual->setActual("S");

@@ -31,3 +31,9 @@ services:
         arguments:
             $baseUrl: '%env(API_BONITA)%'
             $cacheNamespace: 'cookie-bonita'
+
+    App\Service\CloudService:
+        arguments:
+            $baseUrl: '%env(CLOUD_API)%'
+            $user: '%env(CLOUD_USER)%'
+            $password: '%env(CLOUD_PASSWORD)%'
