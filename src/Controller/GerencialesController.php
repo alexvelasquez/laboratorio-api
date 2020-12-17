@@ -103,16 +103,29 @@ class GerencialesController extends FOSRestController
      */
     public function proyectosEnCursoProtocolosAtrasados()
     {
+        //  Hay un problema y es que si seteamos una fecha fin al proyecto. Seguro cagamos alguna validacion que estemos haciendo por fechafin del proyecto
+        // Sino agregar fecha fin a los protocolos
         $serializer = $this->get('jms_serializer');
         $em = $this->getDoctrine()->getManager();
         $proyectos = $em->getRepository("App:Proyecto")->proyectosConProtocolos();
         $response = [];
-        foreach ($proyectos as $key => $proyecto) {
-            if ($proyecto->getCasoId() != NULL && $proyecto->getFechaFin() == NULL) {
+        foreach ($proyectos as $proyecto) {
+            if ($proyecto->getCasoId() != NULL && $proyecto->getFechaFin() != NULL) {
                 // unset($proyectos[$key]);
-                $response [] = $proyecto;
+                $atrasados = 0;
+                foreach ($proyecto->getProtocolos() as $p) {
+                    # Comparo si la fechafin del protocolo es mayor a la del proyecto
+                    if ($p->getFechaFin() >= $proyecto->getFechaFin()) {
+                        # Probablemente la condicion cambie
+                        $atrasados++;
+                    }
+                }
+                if ($atrasados > 0) {
+                    $response [] = ["proyecto" => $proyecto, "protocolos_atrasados" => $atrasados];
+                }
             }
         };
+        // dd($response);
         return new Response($serializer->serialize($response, "json"));
     }
 }
