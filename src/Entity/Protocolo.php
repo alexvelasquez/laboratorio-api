@@ -211,7 +211,7 @@ class Protocolo
         return $this->responsable;
     }
 
-    public function setResponsable(?User $responsable): self
+    public function setResponsable($responsable): self
     {
         $this->responsable = $responsable;
 
